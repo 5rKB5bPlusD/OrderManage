@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.graduationDesign.dao.INoticeDao">
+    <resultMap id="notice" type="com.graduationDesign.model.po.NoticePO">
+        <result property="noticeId" column="id"/>
+        <result property="title" column="title"/>
+        <result property="date" column="notice_date"/>
+        <result property="content" column="content"/>
+    </resultMap>
+
+    <insert id="addNotice">
+        INSERT INTO om_notice (title, notice_date, content) VALUES (#{title},#{date},#{content})
+    </insert>
+
+    <select id="getAllNotice" resultMap="notice">
+        SELECT * FROM om_notice
+    </select>
+
+    <select id="getNotice" resultMap="notice">
+        SELECT * FROM om_notice WHERE id = #{noticeId}
+    </select>
+
+    <delete id="deleteNotice">
+        DELETE FROM om_notice WHERE id = #{noticeId}
+    </delete>
+
+    <update id="updateNotice">
+        UPDATE om_notice
+        <set>
+            <if test="title!=null and title!=''">
+                title = #{title},
+            </if>
+            <if test="content!=null and content!=''">
+                content = #{content},
+            </if>
+            <if test="date!=null and date!=''">
+                notice_date = #{date}
+            </if>
+        </set>
+        WHERE id = #{noticeId}
+    </update>
+
+</mapper>

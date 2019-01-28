@@ -1,0 +1,40 @@
+.label-top {
+    display: block;
+    height: 22px;
+    line-height: 22px;
+    vertical-align: middle;
+}
+
+.tb {
+    width: 60%;
+    padding: 5px 4px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.error-message {
+    margin: 4px 0 0 0;
+    padding: 0;
+    color: red;
+}
+
+body {
+    background-image: url("/static/img/bg1.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-attachment: fixed;
+    background-size: cover;
+}
+
+.notice {
+    width: 50%;
+    margin-top: 50px;
+    background: transparent
+}
+
+.login {
+    width: 50%;
+    margin-top: 50px;
+    margin-left: 50px;
+    background: transparent
+}

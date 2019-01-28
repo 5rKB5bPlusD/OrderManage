@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.graduationDesign.dao.IOrderDao">
+    <resultMap id="orderComplaintSimple" type="com.graduationDesign.model.po.OrderComplaintSimple">
+        <result property="id" column="id"/>
+        <result property="itemId" column="item_id"/>
+        <result property="title" column="title"/>
+        <result property="finished" column="finished"/>
+        <result property="rank" column="rank_id"/>
+    </resultMap>
+
+    <resultMap id="orderComplaintAccept" type="com.graduationDesign.model.po.OrderComplaintAccept">
+        <result property="id" column="id"/>
+        <result property="itemId" column="item_id"/>
+        <result property="eomsId" column="eoms_id"/>
+        <result property="finished" column="finished"/>
+        <result property="customerName" column="customer_name"/>
+        <result property="customerTel" column="customer_tel"/>
+        <result property="complaintType" column="complaint_type"/>
+        <result property="acceptanceTime" column="acceptance_time"/>
+        <result property="acceptPerson" column="accept_person"/>
+        <result property="complaintContent" column="complaint_content"/>
+        <result property="customerRequirements" column="customer_requirements"/>
+        <result property="responsibleDepartment" column="responsible_department"/>
+        <result property="responsiblePerson" column="responsible_person"/>
+        <result property="timeRequired" column="time_required"/>
+        <result property="rank" column="rank_id"/>
+    </resultMap>
+
+    <resultMap id="orderComplaintProcess" type="com.graduationDesign.model.po.OrderComplaintProcess">
+        <result property="id" column="id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="processingTime" column="processing_time"/>
+        <result property="communicationMode" column="communication_mode"/>
+        <result property="handler" column="handler"/>
+        <result property="processingResult" column="processing_result"/>
+        <result property="treatmentProcess" column="treatment_process"/>
+    </resultMap>
+
+    <resultMap id="orderComplaintResult" type="com.graduationDesign.model.po.OrderComplaintResult">
+        <result property="id" column="id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="serviceAdvice" column="service_advice"/>
+        <result property="serviceManager" column="service_manager"/>
+        <result property="chargeAdvice" column="charge_advice"/>
+        <result property="chargeManager" column="charge_manager"/>
+        <result property="finalPlan" column="final_plan"/>
+        <result property="planSign" column="plan_sign"/>
+        <result property="planDate" column="plan_date"/>
+        <result property="improvementMeasures" column="improvement_measures"/>
+        <result property="measuresSign" column="measures_sign"/>
+        <result property="measuresDate" column="measures_date"/>
+        <result property="feedback" column="feedback"/>
+        <result property="closingOpinion" column="closing_opinion"/>
+    </resultMap>
+
+    <resultMap id="rank" type="com.graduationDesign.model.po.RankPO">
+        <result property="id" column="id"/>
+        <result property="lv" column="lv"/>
+        <result property="lvMean" column="lv_mean"/>
+        <result property="roleMean" column="role_mean"/>
+        <result property="orderGroup" column="order_group"/>
+    </resultMap>
+
+    <resultMap id="orderType" type="com.graduationDesign.model.po.Group">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="typeId" column="type_id"/>
+        <result property="rank" column="rank_id"/>
+    </resultMap>
+
+    <select id="getOrderComplaintSimple" resultMap="orderComplaintSimple">
+        SELECT id, item_id, title, finished, rank_id FROM om_order_complaint_accept WHERE item_id = #{itemId}
+    </select>
+
+    <select id="getOrderComplaintAcceptByItem" resultMap="orderComplaintAccept">
+        SELECT * FROM om_order_complaint_accept WHERE item_id = #{itemId}
+    </select>
+
+    <select id="getOrderComplaintAccept" resultMap="orderComplaintAccept">
+        SELECT * FROM om_order_complaint_accept WHERE id = #{orderId}
+    </select>
+
+    <select id="getOrderComplaintProcess" resultMap="orderComplaintProcess">
+        SELECT * FROM om_order_complaint_process WHERE order_id = #{orderId}
+    </select>
+
+    <select id="getOrderComplaintResult" resultMap="orderComplaintResult">
+        SELECT * FROM om_order_complaint_result WHERE order_id = #{orderId}
+    </select>
+
+    <insert id="addProcess">
+        INSERT INTO om_order_complaint_process
+        (order_id,processing_time,communication_mode,`handler`,processing_result,treatment_process)
+        VALUES (#{orderId},#{processingTime},#{communicationMode},#{handler},#{processingResult},#{treatmentProcess})
+    </insert>
+
+    <update id="upgradeComplaint">
+        UPDATE om_order_complaint_accept set finished = #{finished},rank_id = rank_id + 1
+    </update>
+
+    <update id="updateComplaintResult">
+        UPDATE om_order_complaint_result
+        <set>
+            <if test="serviceAdvice!=null and serviceAdvice!=''">
+                service_advice = #{serviceAdvice},
+            </if>
+            <if test="serviceManager!=null and serviceManager!=''">
+                service_manager = #{serviceManager},
+            </if>
+            <if test="chargeAdvice!=null and chargeAdvice!=''">
+                charge_advice = #{chargeAdvice},
+            </if>
+            <if test="chargeManager!=null and chargeManager!=''">
+                charge_manager = #{chargeManager},
+            </if>
+            <if test="finalPlan!=null and finalPlan!=''">
+                final_plan = #{finalPlan},
+            </if>
+            <if test="planSign!=null and planSign!=''">
+                plan_sign = #{planSign},
+            </if>
+            <if test="planDate!=null and planDate!=''">
+                plan_date = #{planDate},
+            </if>
+            <if test="improvementMeasures!=null and improvementMeasures!=''">
+                improvement_measures = #{improvementMeasures},
+            </if>
+            <if test="measuresSign!=null and measuresSign!=''">
+                measures_sign = #{measuresSign},
+            </if>
+            <if test="measuresDate!=null and measuresDate!=''">
+                measures_date = #{measuresDate},
+            </if>
+            <if test="feedback!=null and feedback!=''">
+                feedback = #{feedback},
+            </if>
+            <if test="closingOpinion!=null and closingOpinion!=''">
+                closing_opinion = #{closingOpinion},
+            </if>
+        </set>
+        WHERE order_id = #{orderId}
+    </update>
+
+    <select id="getAllRank" resultMap="rank">
+        SELECT * FROM om_rank WHERE order_group = #{groupId}
+    </select>
+
+    <select id="getAllOrderType" resultMap="orderType">
+        SELECT * FROM om_menu_group WHERE type_id = 1
+    </select>
+
+    <select id="getOrderComplaintAcceptFake" resultMap="orderComplaintAccept">
+        SELECT * FROM om_order_complaint_fake
+    </select>
+
+    <insert id="insertOrderComplaintAccept">
+        INSERT INTO om_order_complaint_accept
+        (eoms_id,title,customer_name,customer_tel,complaint_type,acceptance_time,accept_person,complaint_content,
+        customer_requirements,responsible_department,responsible_person,time_required)
+        VALUES (#{eomsId},#{title},#{customerName},#{customerTel},#{complaintType},#{acceptanceTime},#{acceptPerson},
+        #{complaintContent},#{customerRequirements},#{responsibleDepartment},#{responsiblePerson},#{timeRequired})
+    </insert>
+
+    <select id="getOrderComplaintAcceptAll" resultMap="orderComplaintAccept">
+        SELECT * FROM om_order_complaint_accept
+    </select>
+
+</mapper>

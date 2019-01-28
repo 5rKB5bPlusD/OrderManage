@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.graduationDesign.dao.IUserDao">
+    <resultMap id="user" type="com.graduationDesign.model.po.User">
+        <result property="userId" column="id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="roleId" column="role_id"/>
+        <result property="groupId" column="group_id"/>
+    </resultMap>
+
+    <resultMap id="role" type="com.graduationDesign.model.po.Role">
+        <result property="id" column="id"/>
+        <result property="roleName" column="role_name"/>
+        <result property="orderLv" column="order_lv"/>
+        <result property="commonLv" column="common_lv"/>
+    </resultMap>
+
+    <resultMap id="permission" type="com.graduationDesign.model.po.PermissionPO">
+        <result property="id" column="id"/>
+        <result property="permissionId" column="permission_id"/>
+        <result property="permissionName" column="permission_name"/>
+    </resultMap>
+
+    <select id="selectUser" resultMap="user">
+        SELECT * FROM om_user WHERE username = #{username}
+    </select>
+
+    <select id="getUser" resultMap="user">
+        SELECT * FROM om_user WHERE id = #{id}
+    </select>
+
+    <select id="getRole" resultMap="role">
+        SELECT * FROM om_role WHERE id = #{roleId}
+    </select>
+
+    <select id="getAllRole" resultMap="role">
+        SELECT * FROM om_role
+    </select>
+
+    <select id="getAllPermission" resultMap="permission">
+        SELECT * FROM om_permission
+    </select>
+
+    <insert id="addRole">
+        INSERT INTO om_role
+        (role_name,order_lv,common_lv)
+        VALUES (#{roleName},#{orderLv},#{commonLv})
+    </insert>
+
+    <delete id="deleteRole">
+        DELETE FROM om_role WHERE id = #{roleId}
+    </delete>
+
+    <select id="getAllUser" resultMap="user">
+        SELECT * FROM om_user
+    </select>
+
+    <update id="setRole">
+        UPDATE om_user SET role_id = #{roleId} WHERE id = #{userId}
+    </update>
+
+    <insert id="createUser">
+        INSERT INTO om_user
+        (username,password)
+        VALUES (#{username},#{password})
+    </insert>
+
+    <delete id="deleteUser">
+        DELETE FROM om_user WHERE id = #{userId}
+    </delete>
+
+    <update id="updateUserByUserId">
+        UPDATE om_user
+        <set>
+            <if test="password!=null and password!=''">
+                password = #{password},
+            </if>
+            <if test="groupId!=null and groupId!=''">
+                group_id = #{groupId},
+            </if>
+        </set>
+        WHERE id = #{userId}
+    </update>
+
+    <insert id="insertUserGroup">
+        INSERT INTO om_user_group (group_name, leader_id) VALUES (#{groupName}, #{leaderId})
+    </insert>
+
+    <delete id="deleteUserGroupById">
+        DELETE FROM om_user_group WHERE id = #{groupId}
+    </delete>
+</mapper>
