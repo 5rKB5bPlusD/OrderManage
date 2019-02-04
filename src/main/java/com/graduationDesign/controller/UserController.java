@@ -3,10 +3,7 @@ package com.graduationDesign.controller;
 import com.graduationDesign.model.po.PermissionPO;
 import com.graduationDesign.model.po.Role;
 import com.graduationDesign.model.po.User;
-import com.graduationDesign.model.vo.ActionResult;
-import com.graduationDesign.model.vo.RankVO;
-import com.graduationDesign.model.vo.UserDetailVO;
-import com.graduationDesign.model.vo.UserVO;
+import com.graduationDesign.model.vo.*;
 import com.graduationDesign.service.impl.AuthServiceImpl;
 import com.graduationDesign.service.impl.BaseServiceImpl;
 import com.graduationDesign.service.impl.UserServiceImpl;
@@ -151,6 +148,91 @@ public class UserController {
     public ActionResult deleteUser(HttpServletRequest request, HttpServletResponse response) {
         int userId = Integer.parseInt(request.getParameter("userId"));
         int num = userService.deleteUser(userId);
+        if (num == 1) {
+            return new ActionResult(true, num, "成功");
+        } else {
+            return new ActionResult(false, null, "未知异常");
+        }
+    }
+
+    @RequestMapping("/allTeam")
+    @ResponseBody
+    public List<UserTeamVO> allTeam(HttpServletRequest request, HttpServletResponse response) {
+        return userService.selectUserTeamAll();
+    }
+
+    @RequestMapping("/deleteTeam")
+    @ResponseBody
+    public ActionResult deleteTeam(HttpServletRequest request, HttpServletResponse response) {
+        int teamId = Integer.parseInt(request.getParameter("teamId"));
+        int num = userService.deleteTeam(teamId);
+        if (num == 1) {
+            return new ActionResult(true, num, "成功");
+        } else {
+            return new ActionResult(false, null, "未知异常");
+        }
+    }
+
+    @RequestMapping("/addTeam")
+    @ResponseBody
+    public ActionResult addTeam(HttpServletRequest request, HttpServletResponse response) {
+        String teamName = request.getParameter("teamName");
+        String teamDescribe = request.getParameter("teamDescribe");
+        int leaderId = Integer.parseInt(request.getParameter("leaderId"));
+        int num = userService.addTeam(teamName, teamDescribe, leaderId);
+
+        if (num == 1) {
+            return new ActionResult(true, num, "成功");
+        } else {
+            return new ActionResult(false, null, "未知异常");
+        }
+    }
+
+    @RequestMapping("/editTeam")
+    @ResponseBody
+    public ActionResult editTeam(HttpServletRequest request, HttpServletResponse response) {
+        int teamId = Integer.parseInt(request.getParameter("teamId"));
+        String teamName = request.getParameter("teamName");
+        String teamDescribe = request.getParameter("teamDescribe");
+        int leaderId = Integer.parseInt(request.getParameter("leaderId"));
+        int num = userService.editTeam(teamId, teamName, teamDescribe, leaderId);
+
+        if (num == 1) {
+            return new ActionResult(true, num, "成功");
+        } else {
+            return new ActionResult(false, null, "未知异常");
+        }
+    }
+
+    @RequestMapping("/getMember")
+    @ResponseBody
+    public List<UserVO> getMember(HttpServletRequest request, HttpServletResponse response) {
+        int teamId = Integer.parseInt(request.getParameter("teamId"));
+        return userService.getMember(teamId);
+    }
+
+    @RequestMapping("/addMember")
+    @ResponseBody
+    public ActionResult addMember(HttpServletRequest request, HttpServletResponse response) {
+        int userId = Integer.parseInt(request.getParameter("userId"));
+        int teamId = Integer.parseInt(request.getParameter("teamId"));
+        int num = userService.addMember(userId, teamId);
+
+        if (num == 1) {
+            int roleId = userService.getUser(userId).getRoleId();
+            String roleName = userService.getRole(roleId).getRoleName();
+            return new ActionResult(true, roleName, "成功");
+        } else {
+            return new ActionResult(false, null, "未知异常");
+        }
+    }
+
+    @RequestMapping("/removeMember")
+    @ResponseBody
+    public ActionResult removeMember(HttpServletRequest request, HttpServletResponse response) {
+        int userId = Integer.parseInt(request.getParameter("userId"));
+        int num = userService.removeMember(userId);
+
         if (num == 1) {
             return new ActionResult(true, num, "成功");
         } else {

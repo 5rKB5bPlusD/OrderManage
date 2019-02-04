@@ -7,7 +7,7 @@
         <result property="username" column="username"/>
         <result property="password" column="password"/>
         <result property="roleId" column="role_id"/>
-        <result property="groupId" column="group_id"/>
+        <result property="teamId" column="team_id"/>
     </resultMap>
 
     <resultMap id="role" type="com.graduationDesign.model.po.Role">
@@ -21,6 +21,13 @@
         <result property="id" column="id"/>
         <result property="permissionId" column="permission_id"/>
         <result property="permissionName" column="permission_name"/>
+    </resultMap>
+
+    <resultMap id="team" type="com.graduationDesign.model.po.UserTeamPO">
+        <result property="teamId" column="id"/>
+        <result property="teamName" column="team_name"/>
+        <result property="teamDescribe" column="team_describe"/>
+        <result property="leaderId" column="leader_id"/>
     </resultMap>
 
     <select id="selectUser" resultMap="user">
@@ -77,18 +84,47 @@
             <if test="password!=null and password!=''">
                 password = #{password},
             </if>
-            <if test="groupId!=null and groupId!=''">
-                group_id = #{groupId},
+            <if test="teamId!=null and teamId!=''">
+                team_id = #{teamId},
             </if>
         </set>
         WHERE id = #{userId}
     </update>
 
-    <insert id="insertUserGroup">
-        INSERT INTO om_user_group (group_name, leader_id) VALUES (#{groupName}, #{leaderId})
+    <select id="selectUserTeamAll" resultMap="team">
+        SELECT * FROM om_user_team
+    </select>
+
+    <select id="selectUserTeamByTeamId" resultMap="team">
+        SELECT * FROM om_user_team WWHERE id = #{teamId}
+    </select>
+
+    <insert id="insertUserTeam">
+        INSERT INTO om_user_team (team_name,team_describe, leader_id) VALUES (#{teamName}, #{teamDescribe}, #{leaderId})
     </insert>
 
-    <delete id="deleteUserGroupById">
-        DELETE FROM om_user_group WHERE id = #{groupId}
+    <update id="updateUserTeamByTeamId">
+        UPDATE om_user_team
+        <set>
+            <if test="teamName!=null and teamName!=''">
+                team_name = #{teamName},
+            </if>
+            <if test="teamDescribe!=null and teamDescribe!=''">
+                team_describe = #{teamDescribe},
+            </if>
+            <if test="leaderId!=null and leaderId!=''">
+                leader_id = #{leaderId},
+            </if>
+        </set>
+        WHERE id = #{teamId}
+    </update>
+
+    <delete id="deleteUserTeamById">
+        DELETE FROM om_user_team WHERE id = #{teamId}
     </delete>
+
+    <select id="selectUserByTeamId" resultMap="user">
+        SELECT * FROM om_user WHERE team_id = #{teamId}
+    </select>
+
 </mapper>

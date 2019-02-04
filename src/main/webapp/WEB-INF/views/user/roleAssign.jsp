@@ -84,8 +84,6 @@
         ]]
     });
 
-    tableAssignRole();
-
     function tableAssignRole() {
         $("#tableAssignRole").datagrid({
             url: '/user/allRole',
@@ -100,6 +98,8 @@
             ]]
         });
     }
+
+    tableAssignRole();
 
     function more() {
         let select = $("#userList").datagrid("getSelected");

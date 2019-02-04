@@ -1,9 +1,6 @@
 package com.graduationDesign.dao;
 
-import com.graduationDesign.model.po.PermissionPO;
-import com.graduationDesign.model.po.RankPO;
-import com.graduationDesign.model.po.Role;
-import com.graduationDesign.model.po.User;
+import com.graduationDesign.model.po.*;
 import com.graduationDesign.model.vo.UserVO;
 import org.apache.ibatis.annotations.Param;
 
@@ -33,4 +30,18 @@ public interface IUserDao {
     public int createUser(@Param("username") String username, @Param("password") String password);
 
     public int deleteUser(int userId);
+
+    public int updateUserByUserId(Map map);
+
+    public List<UserTeamPO> selectUserTeamAll();
+
+    public UserTeamPO selectUserTeamByTeamId(int teamId);
+
+    public int insertUserTeam(Map map);
+
+    public int updateUserTeamByTeamId(Map map);
+
+    public int deleteUserTeamById(int teamId);
+
+    public List<User> selectUserByTeamId(int teamId);
 }

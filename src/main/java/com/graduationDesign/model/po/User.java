@@ -6,7 +6,7 @@ public class User {
     private String username;
     private String password;
     private int roleId;
-    private int groupId;
+    private int teamId;
 
     public int getUserId() {
         return userId;
@@ -40,11 +40,11 @@ public class User {
         this.roleId = roleId;
     }
 
-    public int getGroupId() {
-        return groupId;
+    public int getTeamId() {
+        return teamId;
     }
 
-    public void setGroupId(int groupId) {
-        this.groupId = groupId;
+    public void setTeamId(int teamId) {
+        this.teamId = teamId;
     }
 }

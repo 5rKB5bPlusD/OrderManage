@@ -3,10 +3,7 @@ package com.graduationDesign.service;
 import com.graduationDesign.model.po.PermissionPO;
 import com.graduationDesign.model.po.Role;
 import com.graduationDesign.model.po.User;
-import com.graduationDesign.model.vo.RankVO;
-import com.graduationDesign.model.vo.RoleVO;
-import com.graduationDesign.model.vo.UserDetailVO;
-import com.graduationDesign.model.vo.UserVO;
+import com.graduationDesign.model.vo.*;
 
 import java.util.List;
 
@@ -35,4 +32,20 @@ public interface IUserService {
     public int createUser(String username, String password);
 
     public int deleteUser(int userId);
+
+    public List<UserTeamVO> selectUserTeamAll();
+
+    public UserTeamVO selectUserTeamByTeamId(int teamId);
+
+    public int deleteTeam(int teamId);
+
+    public int addTeam(String teamName, String teamDescribe, int leaderId);
+
+    public int editTeam(int teamId, String teamName, String teamDescribe, int leaderId);
+
+    public List<UserVO> getMember(int teamId);
+
+    public int addMember(int userId, int teamId);
+
+    public int removeMember(int userId);
 }

@@ -18,7 +18,7 @@
         <h3>添加角色（工单等级从低到高分配）</h3>
         <input id="roleName" class="easyui-textbox" data-options="prompt:'角色名'"
                style="width:20%;height:32px">
-        <input id="orderType" class="easyui-combogrid" style="width:15%" value="工单种类" data-options="
+        <input id="orderType" class="easyui-combogrid" style="width:15%" value="工单种类" editable="false" data-options="
 			panelWidth: 300,
 			idField: 'id',
 			textField: 'name',
@@ -31,8 +31,8 @@
 			]],
 			fitColumns: true
 		">
-        <input id="order" class="easyui-combogrid" style="width:30%" value="工单等级">
-        <input id="common" class="easyui-combogrid" style="width:15%" value="赋予权限" data-options="
+        <input id="order" class="easyui-combogrid" style="width:30%" value="工单等级" editable="false">
+        <input id="common" class="easyui-combogrid" style="width:15%" value="赋予权限" editable="false" data-options="
 			panelWidth: 200,
 			multiple: true,
 			idField: 'permissionId',

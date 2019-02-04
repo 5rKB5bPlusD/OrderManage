@@ -3,12 +3,10 @@ package com.graduationDesign.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.google.gson.Gson;
 import com.graduationDesign.dao.IUserDao;
-import com.graduationDesign.model.po.Group;
-import com.graduationDesign.model.po.PermissionPO;
-import com.graduationDesign.model.po.Role;
-import com.graduationDesign.model.po.User;
+import com.graduationDesign.model.po.*;
 import com.graduationDesign.model.vo.RoleVO;
 import com.graduationDesign.model.vo.UserDetailVO;
+import com.graduationDesign.model.vo.UserTeamVO;
 import com.graduationDesign.model.vo.UserVO;
 import com.graduationDesign.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -173,5 +171,87 @@ public class UserServiceImpl implements IUserService {
     @Override
     public int deleteUser(int userId) {
         return userDao.deleteUser(userId);
+    }
+
+    @Override
+    public List<UserTeamVO> selectUserTeamAll() {
+        List<UserTeamPO> teamPOList = userDao.selectUserTeamAll();
+        List<UserTeamVO> teamVOList = new ArrayList<>();
+        for (UserTeamPO t : teamPOList) {
+            UserTeamVO userTeamVO = new UserTeamVO();
+            userTeamVO.setTeamId(t.getTeamId());
+            userTeamVO.setTeamName(t.getTeamName());
+            userTeamVO.setTeamDescribe(t.getTeamDescribe());
+            userTeamVO.setLeaderId(t.getLeaderId());
+            userTeamVO.setLeaderName(getUser(t.getLeaderId()).getUsername());
+            teamVOList.add(userTeamVO);
+        }
+        return teamVOList;
+    }
+
+    @Override
+    public UserTeamVO selectUserTeamByTeamId(int teamId) {
+        UserTeamPO userTeamPO = userDao.selectUserTeamByTeamId(teamId);
+        UserTeamVO userTeamVO = new UserTeamVO();
+        userTeamVO.setTeamId(userTeamPO.getTeamId());
+        userTeamVO.setTeamName(userTeamPO.getTeamName());
+        userTeamVO.setTeamDescribe(userTeamPO.getTeamDescribe());
+        userTeamVO.setLeaderId(userTeamPO.getLeaderId());
+        userTeamVO.setLeaderName(getUser(userTeamPO.getLeaderId()).getUsername());
+        return userTeamVO;
+    }
+
+    @Override
+    public int deleteTeam(int teamId) {
+        return userDao.deleteUserTeamById(teamId);
+    }
+
+    @Override
+    public int addTeam(String teamName, String teamDescribe, int leaderId) {
+        Map<String, java.io.Serializable> map = new HashMap<String, java.io.Serializable>();
+        map.put("teamName", teamName);
+        map.put("teamDescribe", teamDescribe);
+        map.put("leaderId", leaderId);
+        return userDao.insertUserTeam(map);
+    }
+
+    @Override
+    public int editTeam(int teamId, String teamName, String teamDescribe, int leaderId) {
+        Map<String, java.io.Serializable> map = new HashMap<String, java.io.Serializable>();
+        map.put("teamId", teamId);
+        map.put("teamName", teamName);
+        map.put("teamDescribe", teamDescribe);
+        map.put("leaderId", leaderId);
+        return userDao.updateUserTeamByTeamId(map);
+    }
+
+    @Override
+    public List<UserVO> getMember(int teamId) {
+        List<User> userList = userDao.selectUserByTeamId(teamId);
+        List<UserVO> userVOList = new ArrayList<>();
+        for (User u : userList) {
+            UserVO userVO = new UserVO();
+            userVO.setUserId(u.getUserId());
+            userVO.setUsername(u.getUsername());
+            userVO.setRoleName(getRole(u.getRoleId()).getRoleName());
+            userVOList.add(userVO);
+        }
+        return userVOList;
+    }
+
+    @Override
+    public int addMember(int userId, int teamId) {
+        Map<String, Integer> map = new HashMap<>();
+        map.put("userId", userId);
+        map.put("teamId", teamId);
+        return userDao.updateUserByUserId(map);
+    }
+
+    @Override
+    public int removeMember(int userId) {
+        Map<String, Integer> map = new HashMap<>();
+        map.put("userId", userId);
+        map.put("teamId", -1);
+        return userDao.updateUserByUserId(map);
     }
 }
