@@ -1,14 +1,16 @@
-package com.graduationDesign.model.po;
+package com.graduationDesign.model.vo;
 
 import java.util.Date;
 
-public class JobPO {
+public class JobVO {
     private int jobId;
     private String jobName;
     private int speed;
-    private Date date;
+    private String date;
     private int userId;
     private int teamId;
+    private String username;
+    private String teamName;
 
     public int getJobId() {
         return jobId;
@@ -34,11 +36,11 @@ public class JobPO {
         this.speed = speed;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
@@ -56,5 +58,21 @@ public class JobPO {
 
     public void setTeamId(int teamId) {
         this.teamId = teamId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getTeamName() {
+        return teamName;
+    }
+
+    public void setTeamName(String teamName) {
+        this.teamName = teamName;
     }
 }

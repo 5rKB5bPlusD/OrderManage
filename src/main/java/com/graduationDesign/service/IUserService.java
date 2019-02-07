@@ -3,6 +3,7 @@ package com.graduationDesign.service;
 import com.graduationDesign.model.po.PermissionPO;
 import com.graduationDesign.model.po.Role;
 import com.graduationDesign.model.po.User;
+import com.graduationDesign.model.po.UserTeamPO;
 import com.graduationDesign.model.vo.*;
 
 import java.util.List;
@@ -36,6 +37,8 @@ public interface IUserService {
     public List<UserTeamVO> selectUserTeamAll();
 
     public UserTeamVO selectUserTeamByTeamId(int teamId);
+
+    public UserTeamPO selectUserTeamByLeaderId(int leaderId);
 
     public int deleteTeam(int teamId);
 

@@ -15,4 +15,6 @@ public interface IAuthService {
     public List<PermissionPO> getAllPermission();
 
     public boolean checkAuth(User user, int permission);
+
+    public int checkLeader(User user);
 }

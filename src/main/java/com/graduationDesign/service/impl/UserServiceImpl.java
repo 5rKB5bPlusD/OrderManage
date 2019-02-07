@@ -192,13 +192,23 @@ public class UserServiceImpl implements IUserService {
     @Override
     public UserTeamVO selectUserTeamByTeamId(int teamId) {
         UserTeamPO userTeamPO = userDao.selectUserTeamByTeamId(teamId);
-        UserTeamVO userTeamVO = new UserTeamVO();
-        userTeamVO.setTeamId(userTeamPO.getTeamId());
-        userTeamVO.setTeamName(userTeamPO.getTeamName());
-        userTeamVO.setTeamDescribe(userTeamPO.getTeamDescribe());
-        userTeamVO.setLeaderId(userTeamPO.getLeaderId());
-        userTeamVO.setLeaderName(getUser(userTeamPO.getLeaderId()).getUsername());
-        return userTeamVO;
+        if (userTeamPO != null) {
+            UserTeamVO userTeamVO = new UserTeamVO();
+            userTeamVO.setTeamId(userTeamPO.getTeamId());
+            userTeamVO.setTeamName(userTeamPO.getTeamName());
+            userTeamVO.setTeamDescribe(userTeamPO.getTeamDescribe());
+            userTeamVO.setLeaderId(userTeamPO.getLeaderId());
+            userTeamVO.setLeaderName(getUser(userTeamPO.getLeaderId()).getUsername());
+            return userTeamVO;
+        } else {
+            return null;
+        }
+
+    }
+
+    @Override
+    public UserTeamPO selectUserTeamByLeaderId(int leaderId) {
+        return userDao.selectUserTeamByLeaderId(leaderId);
     }
 
     @Override

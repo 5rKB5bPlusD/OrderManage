@@ -3,6 +3,7 @@ package com.graduationDesign.service.impl;
 import com.graduationDesign.dao.IUserDao;
 import com.graduationDesign.model.po.PermissionPO;
 import com.graduationDesign.model.po.User;
+import com.graduationDesign.model.po.UserTeamPO;
 import com.graduationDesign.service.IAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,5 +48,14 @@ public class AuthServiceImpl implements IAuthService {
             }
         }
         return false;
+    }
+
+    @Override
+    public int checkLeader(User user) {
+        UserTeamPO userTeamPO = userService.selectUserTeamByLeaderId(user.getUserId());
+        if (userTeamPO != null) {
+            return userTeamPO.getTeamId();
+        }
+        return -1;
     }
 }

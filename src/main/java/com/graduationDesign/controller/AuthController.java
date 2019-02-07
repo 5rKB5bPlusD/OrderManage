@@ -38,8 +38,18 @@ public class AuthController {
 
     @RequestMapping("/allPermission")
     @ResponseBody
-    public List<PermissionPO> allPermission(HttpServletRequest request, HttpServletResponse response){
+    public List<PermissionPO> allPermission(HttpServletRequest request, HttpServletResponse response) {
         return authService.getAllPermission();
+    }
+
+    @RequestMapping("/checkLeader")
+    @ResponseBody
+    public ActionResult checkLeader(HttpServletRequest request, HttpServletResponse response) {
+        int teamId = authService.checkLeader((User) request.getSession().getAttribute("user"));
+        if (teamId != -1) {
+            return new ActionResult(true, teamId, "");
+        }
+        return new ActionResult(false, teamId, "");
     }
 
 }

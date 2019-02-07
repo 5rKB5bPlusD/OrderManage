@@ -96,7 +96,11 @@
     </select>
 
     <select id="selectUserTeamByTeamId" resultMap="team">
-        SELECT * FROM om_user_team WWHERE id = #{teamId}
+        SELECT * FROM om_user_team WHERE id = #{teamId}
+    </select>
+
+    <select id="selectUserTeamByLeaderId" resultMap="team">
+        SELECT * FROM om_user_team WHERE leader_id = #{leaderId}
     </select>
 
     <insert id="insertUserTeam">

@@ -44,4 +44,6 @@ public interface IUserDao {
     public int deleteUserTeamById(int teamId);
 
     public List<User> selectUserByTeamId(int teamId);
+
+    public UserTeamPO selectUserTeamByLeaderId(int leaderId);
 }

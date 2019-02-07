@@ -8,11 +8,11 @@
         <result property="speed" column="speed"/>
         <result property="date" column="date"/>
         <result property="userId" column="user_id"/>
-        <result property="groupId" column="group_id"/>
+        <result property="teamId" column="team_id"/>
     </resultMap>
 
     <insert id="insertJob">
-        INSERT INTO om_job (job_name, speed, date, user_id, group_id) VALUES (#{jobName},#{speed},#{date},#{userId},#{groupId})
+        INSERT INTO om_job (job_name, speed, date, user_id, team_id) VALUES (#{jobName},#{speed},#{date},#{userId},#{teamId})
     </insert>
 
     <select id="selectJobAll" resultMap="job">
@@ -23,12 +23,65 @@
         SELECT * FROM om_job WHERE user_id = #{userId}
     </select>
 
-    <select id="selectJobByGroupId" resultMap="job">
-        SELECT * FROM om_job WHERE group_id = #{groupId}
+    <select id="selectJobByTeamId" resultMap="job">
+        SELECT * FROM om_job WHERE team_id = #{teamId}
     </select>
 
     <delete id="deleteJobById">
         DELETE FROM om_job WHERE id = #{jobId}
     </delete>
+
+    <select id="selectJobByDate" resultMap="job">
+        SELECT * FROM om_job WHERE user_id = #{userId} AND date BETWEEN #{date} AND #{date}
+    </select>
+
+    <select id="selectJobUnfinishedByUserId" resultMap="job">
+        SELECT
+            *
+        FROM
+            (
+            SELECT
+                *
+            FROM
+                om_job AS a
+            WHERE
+                speed = ( SELECT max( b.speed ) FROM om_job AS b WHERE a.job_name = b.job_name )
+            ) AS c
+        WHERE
+        user_id = #{userId}
+        AND
+        speed BETWEEN 0 AND 99
+    </select>
+
+    <update id="updateJobById">
+        UPDATE om_job
+        <set>
+            <if test="jobName!=null and jobName!=''">
+                job_name = #{jobName},
+            </if>
+            <if test="speed!=null and speed!=''">
+                speed = #{speed},
+            </if>
+        </set>
+        WHERE id = #{jobId}
+    </update>
+
+    <select id="selectJobBySearch" resultMap="job">
+        SELECT * FROM om_job
+        <where>
+            <if test="jobName!=null and jobName!=''">
+                job_name LIKE CONCAT('%',#{jobName},'%')
+            </if>
+            <if test="teamId!=-1">
+                AND team_id = #{teamId}
+            </if>
+            <if test="userId!=-1">
+                AND user_id = #{userId}
+            </if>
+            <if test="date!=null and date!=''">
+                AND date BETWEEN #{date} AND #{date}
+            </if>
+        </where>
+    </select>
 
 </mapper>
