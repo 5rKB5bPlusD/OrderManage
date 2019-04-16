@@ -21,8 +21,8 @@
             <div data-options="region:'center'" style="padding:10px;">
                 <table id="memberList" cellpadding="5" style="width: 100%;height: 100%"></table>
                 <div id="showMemberBar" style="text-align: right">
-                    <input id="userSearch" class="easyui-combobox" panelHeight="auto" style="width:200px"
-                           value="选择用户"></select>
+                    <input id="userSearch" class="easyui-combobox" panelHeight="auto" style="width:200px" editable="false"
+                           value="选择用户">
                     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true"
                        onclick="addMember()">增加成员</a>
                     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true"

@@ -1,6 +1,7 @@
 package com.graduationDesign.controller;
 
 import com.graduationDesign.model.po.Group;
+import com.graduationDesign.model.po.Item;
 import com.graduationDesign.model.po.User;
 import com.graduationDesign.model.vo.ActionResult;
 import com.graduationDesign.model.vo.RankVO;
@@ -32,9 +33,9 @@ public class OrderController {
     @RequestMapping("/load")
     public ModelAndView load(HttpServletRequest request, HttpServletResponse response) {
         String src = request.getParameter("src");
-        String itemId = request.getParameter("itemId");
+        String orderId = request.getParameter("orderId");
         User user = (User) request.getSession().getAttribute("user");
-        Object order = orderService.getOrder(user, src, Integer.parseInt(itemId));
+        Object order = orderService.getOrder(user, src, Integer.parseInt(orderId));
 
         return new ModelAndView(src, "order", order);
     }
@@ -88,14 +89,47 @@ public class OrderController {
 
     @RequestMapping("/allRank")
     @ResponseBody
-    public List<RankVO> allRank(HttpServletRequest request, HttpServletResponse response){
+    public List<RankVO> allRank(HttpServletRequest request, HttpServletResponse response) {
         int groupId = Integer.parseInt(request.getParameter("groupId"));
         return orderService.getAllRank(groupId);
     }
 
     @RequestMapping("/allOrderType")
     @ResponseBody
-    public List<Group> allOrderType(HttpServletRequest request, HttpServletResponse response){
+    public List<Item> allOrderType(HttpServletRequest request, HttpServletResponse response) {
         return orderService.getAllOrderType();
     }
+
+    @RequestMapping(value = "/applyApproval", method = RequestMethod.POST)
+    @ResponseBody
+    public ActionResult applyApproval(HttpServletRequest request, HttpServletResponse response) {
+        int orderId = Integer.parseInt(request.getParameter("orderId"));
+        int status = Integer.parseInt(request.getParameter("status"));
+        int type = Integer.parseInt(request.getParameter("type"));
+        String approvalValue = request.getParameter("approvalValue");
+        int num = orderService.approvalOrderApply(orderId, status, type, approvalValue);
+        if (num == 1) {
+            return new ActionResult(true, "", "提交成功");
+        } else {
+            return new ActionResult(false, "", "未知异常");
+        }
+    }
+
+    @RequestMapping("/showEditOrderLv")
+    @ResponseBody
+    public List<RankVO> showEditOrderLv(HttpServletRequest request, HttpServletResponse response) {
+        int roleId = Integer.parseInt(request.getParameter("roleId"));
+        return orderService.showEditOrderLv(roleId);
+    }
+
+    @RequestMapping("/searchOrder")
+    @ResponseBody
+    public List<Map> searchOrder(HttpServletRequest request, HttpServletResponse response) {
+        String eomsId = request.getParameter("eomsId");
+        String title = request.getParameter("title");
+        int orderType = Integer.parseInt(request.getParameter("orderType"));
+        int lv = Integer.parseInt(request.getParameter("lv"));
+        return orderService.searchOrder(eomsId, title, orderType, lv);
+    }
+
 }

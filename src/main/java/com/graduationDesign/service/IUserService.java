@@ -32,6 +32,8 @@ public interface IUserService {
 
     public int createUser(String username, String password);
 
+    public int resetUser(int userId);
+
     public int deleteUser(int userId);
 
     public List<UserTeamVO> selectUserTeamAll();
@@ -51,4 +53,12 @@ public interface IUserService {
     public int addMember(int userId, int teamId);
 
     public int removeMember(int userId);
+
+    public int addOrderLv(int roleId,String groupId,String orderLv);
+
+    public int removeOrderLv(int roleId,String groupId);
+
+    public int editCommonPermission(int roleId,String commonLv);
+
+    public int changePassword(int userId, String password);
 }

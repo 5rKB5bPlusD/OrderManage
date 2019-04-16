@@ -2,7 +2,6 @@ package com.graduationDesign.model.po;
 
 public class OrderComplaintSimple {
     private int id;
-    private int itemId;
     private String title;
     private int finished;
     private int rank;
@@ -13,14 +12,6 @@ public class OrderComplaintSimple {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public int getItemId() {
-        return itemId;
-    }
-
-    public void setItemId(int itemId) {
-        this.itemId = itemId;
     }
 
     public String getTitle() {

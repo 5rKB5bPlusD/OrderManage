@@ -21,9 +21,9 @@
             <div>
                 条件: &nbsp;&nbsp;
                 <input id="jobNameSearch" class="easyui-textbox" style="width:200px" data-options="prompt:'工作名称'">
-                <input id="teamSearch" class="easyui-combobox" value="选择团队">
-                <input id="userSearch" class="easyui-combobox" value="选择用户">
-                <input id="dateSearch" type="text" class="easyui-datebox"
+                <input id="teamSearch" class="easyui-combobox" editable="false" value="选择团队">
+                <input id="userSearch" class="easyui-combobox" editable="false" value="选择用户">
+                <input id="dateSearch" type="text" class="easyui-datebox" editable="false"
                        data-options="formatter:myformatter,parser:myparser">
                 <a href="javascript:void(0)" class="easyui-linkbutton" onclick='clearSearch()'>清除</a>
                 <a href="javascript:void(0)" class="easyui-linkbutton" onclick="searchJob()">查看成员</a>
@@ -61,9 +61,9 @@
 
     function clearSearch() {
         $("#jobNameSearch").textbox("clear");
-        $("#teamSearch").combobox("clear");
-        $("#userSearch").combobox("clear");
-        $("#dateSearch").datebox("clear");
+        $("#teamSearch").combobox("reset");
+        $("#userSearch").combobox("reset");
+        $("#dateSearch").datebox("reset");
     }
 
     function deleteSelect() {
@@ -112,11 +112,20 @@
             columns: [[
                 {field: 'jobId', title: '编号', width: 100},
                 {field: 'jobName', title: '工作名称', width: 200},
+                {
+                    field: 'speed', title: '进度', width: 200,
+                    formatter: function (value, row, index) {
+                        return '<div class="easyui-progressbar" data-options="value:' + value + '" style="width:100%"></div>';
+                    }
+                },
                 {field: 'date', title: '日期', width: 200},
                 {field: 'username', title: '用户名', width: 200},
                 {field: 'teamName', title: '所属团队及角色', width: 200}
-            ]]
-        })
+            ]],
+            onLoadSuccess:function (data) {
+                $.parser.parse("#jobRight");
+            }
+        });
     }
 
     function searchJobLeader() {

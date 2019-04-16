@@ -5,7 +5,6 @@ import java.util.Date;
 
 public class OrderComplaintAccept implements Serializable {
     private int id;
-    private int itemId;
     private String eomsId;
     private String title;
     private int finished;
@@ -19,7 +18,7 @@ public class OrderComplaintAccept implements Serializable {
     private String responsibleDepartment;
     private String responsiblePerson;
     private Date timeRequired;
-    private int rank;
+    private int rankLv;
 
     public int getId() {
         return id;
@@ -27,14 +26,6 @@ public class OrderComplaintAccept implements Serializable {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public int getItemId() {
-        return itemId;
-    }
-
-    public void setItemId(int itemId) {
-        this.itemId = itemId;
     }
 
     public String getEomsId() {
@@ -141,11 +132,11 @@ public class OrderComplaintAccept implements Serializable {
         this.customerRequirements = customerRequirements;
     }
 
-    public int getRank() {
-        return rank;
+    public int getRankLv() {
+        return rankLv;
     }
 
-    public void setRank(int rank) {
-        this.rank = rank;
+    public void setRankLv(int rankLv) {
+        this.rankLv = rankLv;
     }
 }

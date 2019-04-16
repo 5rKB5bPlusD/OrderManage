@@ -1,6 +1,7 @@
 package com.graduationDesign.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.graduationDesign.model.po.OrderApplyPO;
 import com.graduationDesign.model.po.OrderComplaintAccept;
 import com.graduationDesign.service.impl.SyncServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +22,15 @@ public class SyncController {
 
     @RequestMapping(value = "/fakeOrderComplaintSync", produces = "text/json;charset=UTF-8")
     @ResponseBody
-    public String fakeSync(HttpServletRequest request, HttpServletResponse response) {
+    public String fakeOrderComplaintSync(HttpServletRequest request, HttpServletResponse response) {
         List<OrderComplaintAccept> data = syncService.fakeOrderComplaintSync();
+        return JSON.toJSONString(data);
+    }
+
+    @RequestMapping(value = "/fakeOrderApplySync", produces = "text/json;charset=UTF-8")
+    @ResponseBody
+    public String fakeOrderApplySync(HttpServletRequest request, HttpServletResponse response) {
+        List<OrderApplyPO> data = syncService.fakeOrderApplySync();
         return JSON.toJSONString(data);
     }
 }

@@ -10,7 +10,7 @@ function addPanel(typeId, itemId, title, src) {
         }
         $('#orderRight').tabs('add', {
             title: title,
-            href: "/order/load?src=" + src + "&itemId=" + itemId,
+            href: "/order/load?src=" + src + "&orderId=" + itemId,
             closable: true
         });
     } else if (typeId === 2) {
@@ -93,4 +93,26 @@ $('#jobRight').tabs({
 function logout() {
     sessionStorage.removeItem("username");
     window.location.href = "/user/logout";
+}
+
+//显示通知
+function showNotice() {
+    $("#showNotice").datagrid({
+        url: "/notice/allNotice",
+        width: '100%',
+        height: '100%',
+        striped: true,
+        singleSelect: true,
+        columns: [[
+            {field: 'noticeId', title: '编号', width: 50, hidden: true},
+            {field: 'date', title: '日期', width: '20%'},
+            {
+                field: 'title', title: '标题', width: '80%',
+                formatter: function (value, row, index) {
+                    return "<a href='/notice/showNotice?noticeId=" + row.noticeId + "' target='_blank'>" + value + "</a>"
+                }
+            }
+        ]]
+    });
+    $("#noticeWindow").dialog("open");
 }

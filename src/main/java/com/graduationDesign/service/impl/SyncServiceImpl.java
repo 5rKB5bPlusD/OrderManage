@@ -1,5 +1,6 @@
 package com.graduationDesign.service.impl;
 
+import com.graduationDesign.model.po.OrderApplyPO;
 import com.graduationDesign.model.po.OrderComplaintAccept;
 import com.graduationDesign.service.SyncService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,5 +17,10 @@ public class SyncServiceImpl implements SyncService {
     @Override
     public List<OrderComplaintAccept> fakeOrderComplaintSync() {
         return orderService.getOrderComplaintAcceptFake();
+    }
+
+    @Override
+    public List<OrderApplyPO> fakeOrderApplySync() {
+        return orderService.getOrderApplyFake();
     }
 }

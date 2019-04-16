@@ -5,7 +5,8 @@ public class RankVO {
     private int lv;
     private String lvMean;
     private String roleMean;
-    private String orderGroup;
+    private int orderGroup;
+    private String orderGroupStr;
 
     public int getId() {
         return id;
@@ -39,11 +40,19 @@ public class RankVO {
         this.roleMean = roleMean;
     }
 
-    public String getOrderGroup() {
+    public int getOrderGroup() {
         return orderGroup;
     }
 
-    public void setOrderGroup(String orderGroup) {
+    public void setOrderGroup(int orderGroup) {
         this.orderGroup = orderGroup;
+    }
+
+    public String getOrderGroupStr() {
+        return orderGroupStr;
+    }
+
+    public void setOrderGroupStr(String orderGroupStr) {
+        this.orderGroupStr = orderGroupStr;
     }
 }

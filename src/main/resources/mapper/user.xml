@@ -131,4 +131,20 @@
         SELECT * FROM om_user WHERE team_id = #{teamId}
     </select>
 
+    <update id="updateRoleByRoleId">
+        UPDATE om_role
+        <set>
+            <if test="roleName!=null and roleName!=''">
+                role_name = #{roleName},
+            </if>
+            <if test="orderLv!=null and orderLv!=''">
+                order_lv = #{orderLv},
+            </if>
+            <if test="commonLv!=null and commonLv!=''">
+                common_lv = #{commonLv}
+            </if>
+        </set>
+        WHERE id = #{roleId}
+    </update>
+
 </mapper>

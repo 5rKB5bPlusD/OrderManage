@@ -42,8 +42,8 @@
         SELECT id,type,rank_id FROM om_menu_type WHERE rank_id = #{rank}
     </select>
 
-    <update id="upgradeOrder">
-        UPDATE om_menu_item set rank_id = rank_id + 1 WHERE id = #{itemId}
-    </update>
+    <!--<update id="upgradeOrder">-->
+        <!--UPDATE om_menu_item set rank_id = rank_id + 1 WHERE id = #{itemId}-->
+    <!--</update>-->
 
 </mapper>

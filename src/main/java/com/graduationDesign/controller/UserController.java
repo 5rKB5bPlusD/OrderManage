@@ -59,6 +59,9 @@ public class UserController {
     @RequestMapping("/load")
     public ModelAndView load(HttpServletRequest request, HttpServletResponse response) {
         String src = request.getParameter("src");
+        if (src.contains("personal")) {
+            return new ModelAndView(src, "user", request.getSession().getAttribute("user"));
+        }
         return new ModelAndView(src);
     }
 
@@ -135,7 +138,22 @@ public class UserController {
     public ActionResult createUser(HttpServletRequest request, HttpServletResponse response) {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
+        if("".equals(username)||"".equals(password)){
+            return new ActionResult(false, null, "账号或者密码不能为空");
+        }
         int num = userService.createUser(username, password);
+        if (num == 1) {
+            return new ActionResult(true, num, "成功");
+        } else {
+            return new ActionResult(false, null, "用户名已存在");
+        }
+    }
+
+    @RequestMapping("/resetUser")
+    @ResponseBody
+    public ActionResult resetUser(HttpServletRequest request, HttpServletResponse response){
+        int userId = Integer.parseInt(request.getParameter("userId"));
+        int num = userService.resetUser(userId);
         if (num == 1) {
             return new ActionResult(true, num, "成功");
         } else {
@@ -233,6 +251,61 @@ public class UserController {
         int userId = Integer.parseInt(request.getParameter("userId"));
         int num = userService.removeMember(userId);
 
+        if (num == 1) {
+            return new ActionResult(true, num, "成功");
+        } else {
+            return new ActionResult(false, null, "未知异常");
+        }
+    }
+
+    @RequestMapping("/addOrderLv")
+    @ResponseBody
+    public ActionResult addOrderLv(HttpServletRequest request, HttpServletResponse response) {
+        int roleId = Integer.parseInt(request.getParameter("roleId"));
+        String groupId = request.getParameter("groupId");
+        String orderLv = request.getParameter("orderLv");
+        int num = userService.addOrderLv(roleId, groupId, orderLv);
+        if (num == 1) {
+            return new ActionResult(true, num, "成功");
+        } else if (num == -1) {
+            return new ActionResult(false, -1, "一个角色只能拥有一张工单的一级权限");
+        } else {
+            return new ActionResult(false, null, "未知异常");
+        }
+    }
+
+    @RequestMapping("/removeOrderLv")
+    @ResponseBody
+    public ActionResult removeOrderLv(HttpServletRequest request, HttpServletResponse response) {
+        int roleId = Integer.parseInt(request.getParameter("roleId"));
+        String groupId = request.getParameter("groupId");
+        int num = userService.removeOrderLv(roleId, groupId);
+        if (num == 1) {
+            return new ActionResult(true, num, "成功");
+        } else {
+            return new ActionResult(false, null, "未知异常");
+        }
+    }
+
+    @RequestMapping("/editCommonPermission")
+    @ResponseBody
+    public ActionResult editCommonPermission(HttpServletRequest request, HttpServletResponse response) {
+        int roleId = Integer.parseInt(request.getParameter("roleId"));
+        String commonLv = request.getParameter("commonLv");
+        int num = userService.editCommonPermission(roleId, commonLv);
+        if (num == 1) {
+            return new ActionResult(true, num, "成功");
+        } else {
+            return new ActionResult(false, null, "未知异常");
+        }
+    }
+
+    @RequestMapping("/changePassword")
+    @ResponseBody
+    public ActionResult changePassword(HttpServletRequest request, HttpServletResponse response) {
+        String password = request.getParameter("password");
+        User user = (User) request.getSession().getAttribute("user");
+        int num = userService.changePassword(user.getUserId(), password);
         if (num == 1) {
             return new ActionResult(true, num, "成功");
         } else {

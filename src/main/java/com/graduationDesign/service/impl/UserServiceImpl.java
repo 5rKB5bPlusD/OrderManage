@@ -1,7 +1,6 @@
 package com.graduationDesign.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.google.gson.Gson;
 import com.graduationDesign.dao.IUserDao;
 import com.graduationDesign.model.po.*;
 import com.graduationDesign.model.vo.RoleVO;
@@ -49,9 +48,8 @@ public class UserServiceImpl implements IUserService {
         roleVO.setId(role.getId());
         roleVO.setRoleName(role.getRoleName());
 
-        Gson gson = new Gson();
-        Map<String, String> orderLv = new HashMap<String, String>();
-        orderLv = gson.fromJson(role.getOrderLv(), orderLv.getClass());
+        Map<String, String> orderLv = (Map<String, String>) JSON.parse(role.getOrderLv());
+//        orderLv = gson.fromJson(role.getOrderLv(), orderLv.getClass());
         Map<String, Integer> lv = new HashMap<>();
         if (orderLv != null) {
             for (Map.Entry<String, String> entry : orderLv.entrySet()) {
@@ -140,7 +138,14 @@ public class UserServiceImpl implements IUserService {
             userDetailVO.setRoleName(roleVO.getRoleName());
 
             for (Map.Entry<String, String> entry : orderLv.entrySet()) {
-                Group group = baseService.getMenuGroup(Integer.parseInt(entry.getKey()));
+                int tmp = Integer.parseInt(entry.getKey());
+                int orderType = 0;
+                if (tmp == 1) {
+                    orderType = 1;
+                } else if (tmp == 2) {
+                    orderType = 9;
+                }
+                Group group = baseService.getMenuGroup(orderType);
                 order.put(group.getName(), entry.getValue());
             }
 
@@ -165,7 +170,21 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public int createUser(String username, String password) {
+        List<UserVO> list = getAllUser();
+        for(UserVO userVO: list){
+            if(userVO.getUsername().equals(username)){
+                return 0;
+            }
+        }
         return userDao.createUser(username, password);
+    }
+
+    @Override
+    public int resetUser(int userId) {
+        Map<String, java.io.Serializable> map = new HashMap<>();
+        map.put("userId",userId);
+        map.put("password","000000");
+        return userDao.updateUserByUserId(map);
     }
 
     @Override
@@ -262,6 +281,70 @@ public class UserServiceImpl implements IUserService {
         Map<String, Integer> map = new HashMap<>();
         map.put("userId", userId);
         map.put("teamId", -1);
+        return userDao.updateUserByUserId(map);
+    }
+
+    @Override
+    public int addOrderLv(int roleId, String groupId, String orderLv) {
+        Map<String, java.io.Serializable> map = new HashMap<String, java.io.Serializable>();
+        Map<String, String> map1 = getRole(roleId).getOrderLv();
+        Map<String, String> map2 = new HashMap<>();
+        String orderType = "";
+        if (groupId.equals("1")) {
+            orderType = "1";
+        } else if (groupId.equals("9")) {
+            orderType = "2";
+        }
+        if (map1.get(orderType) != null) {
+            return -1;
+        }
+        if ("".equals(groupId) || "".equals(orderLv)) {
+            return 0;
+        }
+        for (Map.Entry<String, String> entry : map1.entrySet()) {
+            map2.put(entry.getKey(), String.valueOf(entry.getValue()));
+        }
+        map2.put(orderType, orderLv);
+        map.put("roleId", roleId);
+        map.put("orderLv", JSON.toJSON(map2).toString());
+        return userDao.updateRoleByRoleId(map);
+    }
+
+    @Override
+    public int removeOrderLv(int roleId, String groupId) {
+        Map<String, java.io.Serializable> map = new HashMap<String, java.io.Serializable>();
+        Map<String, String> map1 = getRole(roleId).getOrderLv();
+        Map<String, String> map2 = new HashMap<>();
+        String orderType = "";
+        if (groupId.equals("1")) {
+            orderType = "1";
+        } else if (groupId.equals("9")) {
+            orderType = "2";
+        }
+        for (Map.Entry<String, String> entry : map1.entrySet()) {
+            if (entry.getKey().equals(orderType)) {
+                continue;
+            }
+            map2.put(entry.getKey(), String.valueOf(entry.getValue()));
+        }
+        map.put("roleId", roleId);
+        map.put("orderLv", JSON.toJSON(map2).toString());
+        return userDao.updateRoleByRoleId(map);
+    }
+
+    @Override
+    public int editCommonPermission(int roleId, String commonLv) {
+        Map<String, java.io.Serializable> map = new HashMap<String, java.io.Serializable>();
+        map.put("roleId", roleId);
+        map.put("commonLv", commonLv.substring(0, commonLv.lastIndexOf(",")));
+        return userDao.updateRoleByRoleId(map);
+    }
+
+    @Override
+    public int changePassword(int userId, String password) {
+        Map<String, java.io.Serializable> map = new HashMap<>();
+        map.put("userId", userId);
+        map.put("password", password);
         return userDao.updateUserByUserId(map);
     }
 }

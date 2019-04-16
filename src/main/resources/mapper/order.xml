@@ -4,15 +4,13 @@
 <mapper namespace="com.graduationDesign.dao.IOrderDao">
     <resultMap id="orderComplaintSimple" type="com.graduationDesign.model.po.OrderComplaintSimple">
         <result property="id" column="id"/>
-        <result property="itemId" column="item_id"/>
         <result property="title" column="title"/>
         <result property="finished" column="finished"/>
-        <result property="rank" column="rank_id"/>
+        <result property="rankLv" column="rank_lv"/>
     </resultMap>
 
     <resultMap id="orderComplaintAccept" type="com.graduationDesign.model.po.OrderComplaintAccept">
         <result property="id" column="id"/>
-        <result property="itemId" column="item_id"/>
         <result property="eomsId" column="eoms_id"/>
         <result property="finished" column="finished"/>
         <result property="customerName" column="customer_name"/>
@@ -25,7 +23,7 @@
         <result property="responsibleDepartment" column="responsible_department"/>
         <result property="responsiblePerson" column="responsible_person"/>
         <result property="timeRequired" column="time_required"/>
-        <result property="rank" column="rank_id"/>
+        <result property="rankLv" column="rank_lv"/>
     </resultMap>
 
     <resultMap id="orderComplaintProcess" type="com.graduationDesign.model.po.OrderComplaintProcess">
@@ -63,19 +61,32 @@
         <result property="orderGroup" column="order_group"/>
     </resultMap>
 
-    <resultMap id="orderType" type="com.graduationDesign.model.po.Group">
+    <resultMap id="orderType" type="com.graduationDesign.model.po.Item">
         <result property="id" column="id"/>
         <result property="name" column="name"/>
-        <result property="typeId" column="type_id"/>
+        <result property="src" column="src"/>
+        <result property="groupId" column="group_id"/>
         <result property="rank" column="rank_id"/>
     </resultMap>
 
-    <select id="getOrderComplaintSimple" resultMap="orderComplaintSimple">
-        SELECT id, item_id, title, finished, rank_id FROM om_order_complaint_accept WHERE item_id = #{itemId}
-    </select>
+    <resultMap id="orderApply" type="com.graduationDesign.model.po.OrderApplyPO">
+        <result property="orderId" column="id"/>
+        <result property="eomsId" column="eoms_id"/>
+        <result property="title" column="title"/>
+        <result property="applicant" column="applicant"/>
+        <result property="applyDate" column="apply_date"/>
+        <result property="type" column="type"/>
+        <result property="purpose" column="purpose"/>
+        <result property="material" column="material"/>
+        <result property="purchase" column="purchase"/>
+        <result property="purchaseDate" column="purchase_date"/>
+        <result property="warehouse" column="warehouse"/>
+        <result property="warehouseDate" column="warehouse_date"/>
+        <result property="status" column="status"/>
+    </resultMap>
 
-    <select id="getOrderComplaintAcceptByItem" resultMap="orderComplaintAccept">
-        SELECT * FROM om_order_complaint_accept WHERE item_id = #{itemId}
+    <select id="getOrderComplaintAcceptAll" resultMap="orderComplaintAccept">
+        SELECT * FROM om_order_complaint_accept
     </select>
 
     <select id="getOrderComplaintAccept" resultMap="orderComplaintAccept">
@@ -97,7 +108,7 @@
     </insert>
 
     <update id="upgradeComplaint">
-        UPDATE om_order_complaint_accept set finished = #{finished},rank_id = rank_id + 1
+        UPDATE om_order_complaint_accept set finished = #{finished},rank_lv = rank_lv + 1 WHERE id = #{orderId}
     </update>
 
     <update id="updateComplaintResult">
@@ -148,7 +159,7 @@
     </select>
 
     <select id="getAllOrderType" resultMap="orderType">
-        SELECT * FROM om_menu_group WHERE type_id = 1
+        SELECT * FROM om_menu_item WHERE rank_id = -1
     </select>
 
     <select id="getOrderComplaintAcceptFake" resultMap="orderComplaintAccept">
@@ -157,14 +168,91 @@
 
     <insert id="insertOrderComplaintAccept">
         INSERT INTO om_order_complaint_accept
-        (eoms_id,title,customer_name,customer_tel,complaint_type,acceptance_time,accept_person,complaint_content,
-        customer_requirements,responsible_department,responsible_person,time_required)
-        VALUES (#{eomsId},#{title},#{customerName},#{customerTel},#{complaintType},#{acceptanceTime},#{acceptPerson},
-        #{complaintContent},#{customerRequirements},#{responsibleDepartment},#{responsiblePerson},#{timeRequired})
+        (item_id,eoms_id,title,finished,customer_name,customer_tel,complaint_type,acceptance_time,accept_person,complaint_content,
+        customer_requirements,responsible_department,responsible_person,time_required,rank_lv)
+        VALUES (#{itemId},#{eomsId},#{title},#{finished},#{customerName},#{customerTel},#{complaintType},#{acceptanceTime},#{acceptPerson},
+        #{complaintContent},#{customerRequirements},#{responsibleDepartment},#{responsiblePerson},#{timeRequired},#{rankLv})
     </insert>
 
-    <select id="getOrderComplaintAcceptAll" resultMap="orderComplaintAccept">
+    <insert id="insertOrderComplaintResult">
+        INSERT INTO om_order_complaint_result (order_id) VALUES (#{orderId})
+    </insert>
+
+    <select id="selectOrderApplyAll" resultMap="orderApply">
+        SELECT * FROM om_order_apply
+    </select>
+
+    <select id="selectOrderApplyByOrderId" resultMap="orderApply">
+        SELECT * FROM om_order_apply WHERE id = #{orderId}
+    </select>
+
+    <update id="updateOrderApplyByOrderId">
+        UPDATE om_order_apply
+        <set>
+            <if test="purchase!=null and purchase!=''">
+                purchase = #{purchase},
+            </if>
+            <if test="purchaseDate!=null and purchaseDate!=''">
+                purchase_date = #{purchaseDate},
+            </if>
+            <if test="warehouse!=null and warehouse!=''">
+                warehouse = #{warehouse},
+            </if>
+            <if test="warehouseDate!=null and warehouseDate!=''">
+                warehouse_date = #{warehouseDate},
+            </if>
+            <if test="status!=null and status!=''">
+                status = #{status}
+            </if>
+        </set>
+        WHERE id = #{orderId}
+    </update>
+
+    <select id="selectRankByLvAndGroup" resultMap="rank">
+        SELECT * FROM om_rank WHERE lv = #{lv} AND order_group = #{orderGroup}
+    </select>
+
+    <select id="selectOrderApplyByEomsId" resultMap="orderApply">
+        SELECT * FROM om_order_apply WHERE eoms_id = #{eomsId}
+    </select>
+
+    <select id="selectOrderApplyByTitleAndStatus" resultMap="orderApply">
+        SELECT * FROM om_order_apply
+        <where>
+            <if test="title!=null and title!=''">
+                title LIKE CONCAT('%',#{title},'%')
+            </if>
+            <if test="status!=-1">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectOrderComplaintAcceptByEomsId" resultMap="orderComplaintAccept">
+        SELECT * FROM om_order_complaint_accept WHERE eoms_id = #{eomsId}
+    </select>
+
+    <select id="selectOrderComplaintAcceptByTitleAndRankLv" resultMap="orderComplaintAccept">
         SELECT * FROM om_order_complaint_accept
+        <where>
+            <if test="title!=null and title!=''">
+                title LIKE CONCAT('%',#{title},'%')
+            </if>
+            <if test="rankLv!=-1">
+                AND rank_lv = #{rankLv}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertOrderApply">
+        INSERT INTO om_order_apply (eoms_id, title, applicant, apply_date, type, purpose, material,
+        purchase, purchase_date, warehouse, warehouse_date, status) VALUES
+        (#{eomsId},#{title},#{applicant},#{applyDate},#{type},#{purpose},#{material},#{purchase},#{purchaseDate},
+        #{warehouse},#{warehouseDate},#{status})
+    </insert>
+
+    <select id="selectOrderApplyFakeAll" resultMap="orderApply">
+        SELECT * FROM om_order_apply_fake
     </select>
 
 </mapper>

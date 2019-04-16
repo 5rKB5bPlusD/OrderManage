@@ -2,10 +2,7 @@ package com.graduationDesign.service.impl;
 
 import com.graduationDesign.dao.IOrderDao;
 import com.graduationDesign.model.po.*;
-import com.graduationDesign.model.vo.OrderComplaint;
-import com.graduationDesign.model.vo.OrderComplaintProcessVO;
-import com.graduationDesign.model.vo.RankVO;
-import com.graduationDesign.model.vo.RoleVO;
+import com.graduationDesign.model.vo.*;
 import com.graduationDesign.service.IOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,19 +22,6 @@ public class OrderServiceImpl implements IOrderService {
     @Autowired
     private BaseServiceImpl baseService;
 
-    @Autowired
-    private AuthServiceImpl authService;
-
-    @Override
-    public OrderComplaintSimple getOrderComplaintSimple(int itemId) {
-        return orderDao.getOrderComplaintSimple(itemId);
-    }
-
-    @Override
-    public OrderComplaintAccept getOrderComplaintAccept(int itemId) {
-        return orderDao.getOrderComplaintAcceptByItem(itemId);
-    }
-
     @Override
     public List<OrderComplaintProcess> getOrderComplaintProcess(int orderId) {
         return orderDao.getOrderComplaintProcess(orderId);
@@ -49,12 +33,12 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public OrderComplaint getOrderComplaint(int lv, int itemId) {
-        OrderComplaintAccept complaintAccept = getOrderComplaintAccept(itemId);
+    public OrderComplaint getOrderComplaint(int lv, int orderId) {
+        OrderComplaintAccept complaintAccept = orderDao.getOrderComplaintAccept(orderId);
         OrderComplaint orderComplaint = new OrderComplaint();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         orderComplaint.setLv(lv);
-        orderComplaint.setRank(complaintAccept.getRank());
+        orderComplaint.setRank(complaintAccept.getRankLv());
         orderComplaint.setId(complaintAccept.getId());
         orderComplaint.setEomsId(complaintAccept.getEomsId());
         orderComplaint.setTitle(complaintAccept.getTitle());
@@ -118,10 +102,13 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public Object getOrder(User user, String src, int itemId) {
+    public Object getOrder(User user, String src, int orderId) {
         if (src.contains("orderComplaint")) {
             int lv = (int) userService.getRole(user.getRoleId()).getOrderLv().get("1");
-            return getOrderComplaint(lv, itemId);
+            return getOrderComplaint(lv, orderId);
+        } else if (src.contains("orderApply")) {
+            int lv = (int) userService.getRole(user.getRoleId()).getOrderLv().get("2");
+            return getOrderApply(lv, orderId);
         }
 
         return null;
@@ -130,9 +117,10 @@ public class OrderServiceImpl implements IOrderService {
     @Override
     public void addProcess(User user, int orderId, String processingTime, String communicationMode,
                            String treatmentProcess, String processingResult) {
-        if (orderDao.getOrderComplaintProcess(orderId) == null) {
-            orderDao.upgradeComplaint(0);
-            baseService.upgradeOrder(orderDao.getOrderComplaintAccept(orderId).getItemId());
+        List<OrderComplaintProcess> list = orderDao.getOrderComplaintProcess(orderId);
+        if (list.size() == 0) {
+            orderDao.upgradeComplaint(orderId, 0);
+//            baseService.upgradeOrder(orderDao.getOrderComplaintAccept(orderId).getItemId());
         }
         Map<String, java.io.Serializable> map = new HashMap<>();
         map.put("orderId", orderId);
@@ -148,13 +136,16 @@ public class OrderServiceImpl implements IOrderService {
     public int upgradeComplaint(User user, int orderId) {
         OrderComplaintAccept orderComplaintAccept = orderDao.getOrderComplaintAccept(orderId);
         int lv = (int) userService.getRole(user.getRoleId()).getOrderLv().get("1");
-        if (orderComplaintAccept.getRank() == lv || (lv == 0 && orderComplaintAccept.getRank() == 1)
-                || (lv == 2 && orderComplaintAccept.getRank() == 5) || (lv == 3 && orderComplaintAccept.getRank() == 6)) {
-            baseService.upgradeOrder(orderDao.getOrderComplaintAccept(orderId).getItemId());
-            if (orderComplaintAccept.getRank() == 6) {
-                return orderDao.upgradeComplaint(1);
+        if (orderComplaintAccept.getRankLv() == lv
+                || (lv == 0 && orderComplaintAccept.getRankLv() == 1)
+                || (lv == 0 && orderComplaintAccept.getRankLv() == 4)
+                || (lv == 2 && orderComplaintAccept.getRankLv() == 5)
+                || (lv == 3 && orderComplaintAccept.getRankLv() == 6)) {
+//            baseService.upgradeOrder(orderDao.getOrderComplaintAccept(orderId).getItemId());
+            if (orderComplaintAccept.getRankLv() == 6) {
+                return orderDao.upgradeComplaint(orderId, 1);
             }
-            return orderDao.upgradeComplaint(0);
+            return orderDao.upgradeComplaint(orderId, 0);
         }
         return 0;
     }
@@ -162,25 +153,29 @@ public class OrderServiceImpl implements IOrderService {
     @Override
     public int updateComplaintResult(User user, int orderId, String text1, String text2, String sign, String date) {
         OrderComplaintAccept orderComplaintAccept = orderDao.getOrderComplaintAccept(orderId);
+        OrderComplaintResult orderComplaintResult = orderDao.getOrderComplaintResult(orderId);
+        if (orderComplaintResult == null) {
+            orderDao.insertOrderComplaintResult(orderId);
+        }
         Map<String, java.io.Serializable> map = new HashMap<>();
         map.put("orderId", orderId);
         RoleVO roleVO = userService.getRole(user.getUserId());
         int lv = (int) roleVO.getOrderLv().get("1");
         if (lv == 2) {
-            if (orderComplaintAccept.getRank() == 5) {
+            if (orderComplaintAccept.getRankLv() == 5) {
                 map.put("feedback", text1);
             } else {
                 map.put("serviceAdvice", text1);
                 map.put("serviceManager", user.getUserId());
             }
         } else if (lv == 3) {
-            if (orderComplaintAccept.getRank() == 6) {
+            if (orderComplaintAccept.getRankLv() == 6) {
                 map.put("closingOpinion", text1);
             } else {
                 map.put("chargeAdvice", text1);
                 map.put("chargeManager", user.getUserId());
             }
-        } else if (lv == 0 && orderComplaintAccept.getRank() == 4) {
+        } else if (lv == 0 && orderComplaintAccept.getRankLv() == 4) {
             map.put("finalPlan", text1);
             map.put("improvementMeasures", text2);
             map.put("planSign", sign);
@@ -198,14 +193,15 @@ public class OrderServiceImpl implements IOrderService {
     public List<RankVO> getAllRank(int groupId) {
         List<RankPO> rankPOS = orderDao.getAllRank(groupId);
         List<RankVO> rankVOS = new ArrayList<>();
-        for(RankPO p: rankPOS){
+        for (RankPO p : rankPOS) {
             String orderGroup = baseService.getMenuGroup(p.getOrderGroup()).getName();
             RankVO rankVO = new RankVO();
             rankVO.setId(p.getId());
             rankVO.setLv(p.getLv());
             rankVO.setLvMean(p.getLvMean());
             rankVO.setRoleMean(p.getRoleMean());
-            rankVO.setOrderGroup(orderGroup);
+            rankVO.setOrderGroup(p.getOrderGroup());
+            rankVO.setOrderGroupStr(orderGroup);
             rankVOS.add(rankVO);
         }
 
@@ -213,8 +209,12 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public List<Group> getAllOrderType() {
-        return orderDao.getAllOrderType();
+    public List<Item> getAllOrderType() {
+        List<Item> list = orderDao.getAllOrderType();
+        for (Item item : list) {
+            item.setRank(baseService.getMenuGroup(item.getGroupId()).getRank());
+        }
+        return list;
     }
 
     @Override
@@ -230,5 +230,184 @@ public class OrderServiceImpl implements IOrderService {
     @Override
     public List<OrderComplaintAccept> getOrderComplaintAcceptAll() {
         return orderDao.getOrderComplaintAcceptAll();
+    }
+
+    @Override
+    public List<OrderApplyPO> selectOrderApplyAll() {
+        return orderDao.selectOrderApplyAll();
+    }
+
+    @Override
+    public OrderApplyVO getOrderApply(int lv, int orderId) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        OrderApplyPO orderApplyPO = orderDao.selectOrderApplyByOrderId(orderId);
+        OrderApplyVO orderApplyVO = new OrderApplyVO();
+        orderApplyVO.setOrderId(orderApplyPO.getOrderId());
+        orderApplyVO.setTitle(orderApplyPO.getTitle());
+        orderApplyVO.setApplicant(orderApplyPO.getApplicant());
+        orderApplyVO.setApplyDate(sdf.format(orderApplyPO.getApplyDate()));
+        orderApplyVO.setType(orderApplyPO.getType());
+        orderApplyVO.setTypeStr(orderApplyPO.getType() == 1 ? "采购" : "库存");
+        orderApplyVO.setPurpose(orderApplyPO.getPurpose());
+        List<Map<String, String>> list = new ArrayList<>();
+        String[] m = orderApplyPO.getMaterial().split(";");
+        for (String s : m) {
+            Map<String, String> map = new HashMap<String, String>();
+            map.put("name", s.split(",")[0]);
+            map.put("num", s.split(",")[1]);
+            list.add(map);
+        }
+        orderApplyVO.setMaterial(list);
+        orderApplyVO.setPurchase(orderApplyPO.getPurchase() == null ? "" : orderApplyPO.getPurchase());
+        orderApplyVO.setPurchaseDate(orderApplyPO.getPurchaseDate() == null ? "" : sdf.format(orderApplyPO.getPurchaseDate()));
+        orderApplyVO.setWarehouse(orderApplyPO.getWarehouse() == null ? "" : orderApplyPO.getWarehouse());
+        orderApplyVO.setWarehouseDate(orderApplyPO.getWarehouseDate() == null ? "" : sdf.format(orderApplyPO.getWarehouseDate()));
+        String status = "";
+        orderApplyVO.setStatus(orderApplyPO.getStatus());
+        if (orderApplyPO.getStatus() == 0) {
+            status = "未处理";
+        } else if (orderApplyPO.getStatus() == 1) {
+            status = "已通过";
+        } else if (orderApplyPO.getStatus() == 2) {
+            status = "未通过";
+        }
+        orderApplyVO.setStatusStr(status);
+        orderApplyVO.setLv(lv);
+        return orderApplyVO;
+    }
+
+    @Override
+    public int approvalOrderApply(int orderId, int status, int type, String approvalValue) {
+        Map<String, java.io.Serializable> map = new HashMap<>();
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        map.put("orderId", orderId);
+        if (type == 1) {
+            map.put("purchase", approvalValue);
+            map.put("purchaseDate", sdf.format(date));
+        } else if (type == 2) {
+            map.put("warehouse", approvalValue);
+            map.put("warehouseDate", sdf.format(date));
+        }
+        map.put("status", status);
+        return orderDao.updateOrderApplyByOrderId(map);
+    }
+
+    @Override
+    public List<RankVO> showEditOrderLv(int roleId) {
+        List<RankVO> list = new ArrayList<>();
+        RoleVO role = userService.getRole(roleId);
+        Map<String, Integer> map = role.getOrderLv();
+        for (Map.Entry<String, Integer> entry : map.entrySet()) {
+            int orderGroup = 0;
+            if (entry.getKey().equals("1")) {
+                orderGroup = 1;
+            } else if (entry.getKey().equals("2")) {
+                orderGroup = 9;
+            }
+            RankPO rankPO = orderDao.selectRankByLvAndGroup(entry.getValue(), orderGroup);
+            String orderGroupName = baseService.getMenuGroup(rankPO.getOrderGroup()).getName();
+            RankVO rankVO = new RankVO();
+            rankVO.setId(rankPO.getId());
+            rankVO.setLv(rankPO.getLv());
+            rankVO.setLvMean(rankPO.getLvMean());
+            rankVO.setRoleMean(rankPO.getRoleMean());
+            rankVO.setOrderGroup(rankPO.getOrderGroup());
+            rankVO.setOrderGroupStr(orderGroupName);
+            list.add(rankVO);
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> searchOrder(String eomsId, String title, int orderType, int lv) {
+        List<Map> list = new ArrayList<>();
+        if (orderType == 1 || eomsId.contains("OC")) {
+            Item item = baseService.getMenuItem(1).get(0);
+            if (!"".equals(eomsId)) {
+                OrderComplaintAccept orderComplaintAccept = orderDao.selectOrderComplaintAcceptByEomsId(eomsId);
+                Map map = new HashMap();
+                map.put("orderId", orderComplaintAccept.getId());
+                map.put("eomsId", orderComplaintAccept.getEomsId());
+                map.put("type", item.getName());
+                map.put("title", orderComplaintAccept.getTitle());
+                map.put("status", orderDao.selectRankByLvAndGroup(orderComplaintAccept.getRankLv(), 1).getLvMean());
+                map.put("src", item.getSrc());
+                list.add(map);
+            } else {
+                List<OrderComplaintAccept> list1 = orderDao.selectOrderComplaintAcceptByTitleAndRankLv(title, lv);
+                for (OrderComplaintAccept o : list1) {
+                    Map map = new HashMap();
+                    map.put("orderId", o.getId());
+                    map.put("eomsId", o.getEomsId());
+                    map.put("type", item.getName());
+                    map.put("title", o.getTitle());
+                    map.put("status", orderDao.selectRankByLvAndGroup(o.getRankLv(), 1).getLvMean());
+                    map.put("src", item.getSrc());
+                    list.add(map);
+                }
+            }
+        } else if (orderType == 9 || eomsId.contains("OA")) {
+            Item item = baseService.getMenuItem(9).get(0);
+            if (!"".equals(eomsId)) {
+                OrderApplyPO orderApplyPO = orderDao.selectOrderApplyByEomsId(eomsId);
+                Map map = new HashMap();
+                map.put("orderId", orderApplyPO.getOrderId());
+                map.put("eomsId", orderApplyPO.getEomsId());
+                map.put("type", item.getName());
+                map.put("title", orderApplyPO.getTitle());
+                map.put("status", orderApplyPO.getStatus() == 1 ? "完成" : "未处理");
+                map.put("src", item.getSrc());
+                list.add(map);
+            } else {
+                List<OrderApplyPO> list1 = orderDao.selectOrderApplyByTitleAndStatus(title, lv);
+                for (OrderApplyPO o : list1) {
+                    Map map = new HashMap();
+                    map.put("orderId", o.getOrderId());
+                    map.put("eomsId", o.getEomsId());
+                    map.put("type", item.getName());
+                    map.put("title", o.getTitle());
+                    map.put("status", o.getStatus() == 1 ? "完成" : "未处理");
+                    map.put("src", item.getSrc());
+                    list.add(map);
+                }
+            }
+        } else {
+            Item item1 = baseService.getMenuItem(1).get(0);
+            List<OrderComplaintAccept> list1 = orderDao.selectOrderComplaintAcceptByTitleAndRankLv(title, lv);
+            for (OrderComplaintAccept o : list1) {
+                Map map = new HashMap();
+                map.put("orderId", o.getId());
+                map.put("eomsId", o.getEomsId());
+                map.put("type", item1.getName());
+                map.put("title", o.getTitle());
+                map.put("status", orderDao.selectRankByLvAndGroup(o.getRankLv(), 1).getLvMean());
+                map.put("src", item1.getSrc());
+                list.add(map);
+            }
+            Item item2 = baseService.getMenuItem(9).get(0);
+            List<OrderApplyPO> list2 = orderDao.selectOrderApplyByTitleAndStatus(title, lv);
+            for (OrderApplyPO o : list2) {
+                Map map = new HashMap();
+                map.put("orderId", o.getOrderId());
+                map.put("eomsId", o.getEomsId());
+                map.put("type", item2.getName());
+                map.put("title", o.getTitle());
+                map.put("status", o.getStatus() == 1 ? "完成" : "未处理");
+                map.put("src", item2.getSrc());
+                list.add(map);
+            }
+        }
+        return list;
+    }
+
+    @Override
+    public int insertOrderApply(OrderApplyPO orderApplyPO) {
+        return orderDao.insertOrderApply(orderApplyPO);
+    }
+
+    @Override
+    public List<OrderApplyPO> getOrderApplyFake() {
+        return orderDao.selectOrderApplyFakeAll();
     }
 }

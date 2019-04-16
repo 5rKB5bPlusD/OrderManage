@@ -31,6 +31,8 @@
     </div>
     <div id="deleteUser" style="text-align: right">
         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true"
+           onclick="resetUser()">重置用户密码</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true"
            onclick="deleteUser()">删除用户</a>
     </div>
 </div>
@@ -69,6 +71,29 @@
                 }
             }
         });
+    }
+
+    function resetUser() {
+        let select = $("#showUser").datagrid("getSelected");
+        $.messager.confirm('确认', '确认重置用户：' + select.username + "的密码?", function (r) {
+            if (r) {
+                $.ajax({
+                    type: "get",
+                    url: "/user/resetUser",
+                    data: {
+                        userId: select.userId
+                    },
+                    success: function (result) {
+                        $.messager.show({
+                            title: '提示',
+                            msg: '<h3>' + result.message + '</h3>',
+                            timeout: 1000,
+                            showType: 'slide'
+                        });
+                    }
+                });
+            }
+        })
     }
 
     function deleteUser() {

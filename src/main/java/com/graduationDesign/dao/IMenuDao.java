@@ -17,5 +17,5 @@ public interface IMenuDao {
 
     public MenuType getMenuType(int rank);
 
-    public int upgradeOrder(int itemId);
+//    public int upgradeOrder(int itemId);
 }

@@ -13,6 +13,7 @@
     <title>Title</title>
 </head>
 <body>
+<link rel="stylesheet" type="text/css" href="/static/plugins/kindeditor/themes/simple/simple.css">
 <div style="padding: 5px">
     <div id="noticeEdit" class="easyui-window" title="编辑"
          data-options="modal:true,closed:true,iconCls:'icon-edit',minimizable:false,maximizable:false"
@@ -22,10 +23,13 @@
                 <form id="editNotice" method="post">
                     <h4>标题</h4>
                     <input id="title" name="title" class="easyui-textbox" style="width:50%;height:32px">
-                    <h4>正文</h4>
-                    <input id="content" name="content" class="easyui-textbox" data-options="multiline:true"
-                           style="width:100%;height:250px;margin-top: 20px">
                 </form>
+                <h4>正文</h4>
+                <textarea id="editContent" name="content"
+                          style="width:100%;height:400px;margin-top: 20px"></textarea>
+                <p>您当前输入了 <span class="showNum1"></span> 个文字。（字数统计包含HTML代码。）</p>
+                <p>您当前输入了 <span class="showNum2"></span> 个文字。（字数统计包含纯文本、IMG、EMBED，不包含换行符，IMG和EMBED算一个文字。）</p>
+                <p class="showNum3"></p>
             </div>
             <div data-options="region:'south',border:false" style="text-align:right;padding:5px 0 0;">
                 <a class="easyui-linkbutton" data-options="iconCls:'icon-ok'" href="javascript:void(0)"
@@ -40,13 +44,60 @@
         <table id="noticeList"></table>
     </div>
     <div id="noticeDeleteBar" style="text-align: right">
-        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-more" plain="true"
-           onclick="editNotice()">编辑</a>
         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true"
+           onclick="editNotice()">编辑</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true"
            onclick="deleteNotice()">删除</a>
     </div>
 </div>
+<script charset="utf-8" src="/static/plugins/kindeditor/kindeditor-all-min.js"></script>
+<script charset="utf-8" src="/static/plugins/kindeditor/lang/zh-CN.js"></script>
 <script type="application/javascript">
+    var editor2;
+
+    function kindeditor(kindeditor) {
+        editor2 = KindEditor.create(kindeditor, {
+            items: ['source', '|', 'undo', 'redo', '|', 'preview', 'code', 'cut', 'copy', 'paste',
+                'plainpaste', 'wordpaste', '|', 'justifyleft', 'justifycenter', 'justifyright',
+                'justifyfull', 'insertorderedlist', 'insertunorderedlist', 'indent', 'outdent', 'subscript',
+                'superscript', 'clearhtml', 'quickformat', 'selectall', '/',
+                'formatblock', 'fontname', 'fontsize', '|', 'forecolor', 'hilitecolor', 'bold',
+                'italic', 'underline', 'strikethrough', 'lineheight', 'removeformat', '|', 'image', 'insertfile',
+                'table', 'hr',
+                'anchor', 'link', 'unlink'],
+            allowImageUpload: true,
+            uploadJson: '/file/upload',
+            fileManagerJson: "/file/manage",
+            allowFileManager: true,
+            minHeight: "500",
+            afterBlur: function () {
+                this.sync();
+            },
+            afterCreate: function () {
+                this.sync();
+            },
+            afterChange: function () {
+                $('.showNum1').html(this.count()); //字数统计包含HTML代码
+                $('.showNum2').html(this.count('text'));  //字数统计包含纯文本、IMG、EMBED，不包含换行符，IMG和EMBED算一个文字
+                var limitNum = 4000;  //设定限制字数
+                var pattern = '还可以输入' + limitNum + '字';
+                $('.showNum3').html(pattern); //输入显示
+                if (this.count('text') > limitNum) {
+                    pattern = ("<span style='color: red'>字数超过限制，请适当删除部分内容</span>");
+                }
+                if (this.count() > limitNum + 1000) {
+                    alert("<span style='color: red'>字数超过限制，请适当删除部分内容</span>");
+                } else {
+                    //计算剩余字数
+                    var result = limitNum - this.count('text');
+                    pattern = '还可以输入' + result + '字';
+                }
+                $('.showNum3').html(pattern); //输入显示
+            }
+        });
+    }
+
+
     $("#noticeList").datagrid({
         url: "/notice/allNotice",
         striped: true,
@@ -54,10 +105,9 @@
         width: '80%',
         toolbar: '#noticeDeleteBar',
         columns: [[
-            {field: 'noticeId', title: '编号', width: '5%'},
-            {field: 'title', title: '公告标题', width: '20%'},
-            {field: 'date', title: '公告日期', width: '15%'},
-            {field: 'content', title: '公告内容', width: '60%'}
+            {field: 'noticeId', title: '编号', width: '10%'},
+            {field: 'title', title: '公告标题', width: '40%'},
+            {field: 'date', title: '公告日期', width: '20%'}
         ]]
     });
 
@@ -74,7 +124,7 @@
             data: {
                 noticeId: select.noticeId,
                 title: $("#title").val(),
-                content: $("#content").val()
+                content: editor2.html()
             },
             success: function (result) {
                 $.messager.show({
@@ -105,9 +155,12 @@
                 success: function (result) {
                     if (result.success) {
                         $("#editNotice").form("load", {
-                            title: result.data.title,
-                            content: result.data.content
+                            title: result.data.title
                         });
+                        if (editor2 === undefined) {
+                            kindeditor("#editContent");
+                        }
+                        editor2.html(result.data.content.toString());
                         $("#noticeEdit").window("open");
                     } else {
                         $.messager.show({

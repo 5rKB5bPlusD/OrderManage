@@ -16,8 +16,35 @@
 </head>
 <body>
 <div style="padding: 20px">
-    <link rel="stylesheet" type="text/css" href="/static/css/orderComplaint.css">
-    <c:if test="${order.lv == 0&&order.rank == order.lv||order.rank == 0}">
+    <style>
+        .complaintTable {
+            width: 80%;
+            border-color: #aaaaaa;
+        }
+
+        .complaintTable td {
+            padding: 10px 5px;
+            width: 16%;
+            height: 40px;
+            word-break: break-word;
+            text-align: center;
+        }
+
+        .processTable, .resultTable {
+            width: 80%;
+        }
+
+        .processTable td:first-child {
+            padding: 5px;
+            text-align: center;
+        }
+
+        .resultTable td:first-child {
+            padding: 5px;
+            text-align: center;
+        }
+    </style>
+    <c:if test="${order.lv == 0&&order.rank == 1||order.rank == 0&&order.lv!=7}">
         <div style="width:92%; position: absolute; top: 60px;">
             <a style="float: left" href="javascript:void(0)" class="easyui-linkbutton" onclick="addProcess()">增加处理记录</a>
             <a style="float: right; right: 20px" href="javascript:void(0)" class="easyui-linkbutton"
@@ -78,7 +105,7 @@
             </div>
         </div>
     </c:if>
-    <c:if test="${order.rank >= 2&&order.rank == order.lv||order.lv==0&&order.rank==4||order.lv==2&&order.rank==5||order.lv==3&&order.rank==6}">
+    <c:if test="${order.rank >= 2&&order.rank == order.lv&&order.lv!=7||order.lv==0&&order.rank==4||order.lv==2&&order.rank==5||order.lv==3&&order.rank==6}">
         <div style="width:92%; position: absolute; top: 60px;">
             <a style="float: left" href="javascript:void(0)" class="easyui-linkbutton" onclick="editResult()">填写报表</a>
         </div>
@@ -259,6 +286,11 @@
                             timeout: 1000,
                             showType: 'slide'
                         });
+                        $('#orderMenuList').tree({
+                            url: '/base/menu?type=1',
+                            method: 'get',
+                            animate: false
+                        });
                     }
                 });
             }
@@ -341,6 +373,11 @@
                         msg: '<h3>提交成功</h3>',
                         timeout: 1000,
                         showType: 'slide'
+                    });
+                    $('#orderMenuList').tree({
+                        url: '/base/menu?type=1',
+                        method: 'get',
+                        animate: false
                     });
                     let tab = $('#orderRight').tabs('getSelected');
                     var url = $(tab.panel('options')).attr('href');

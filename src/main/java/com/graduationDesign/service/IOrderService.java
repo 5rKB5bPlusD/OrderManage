@@ -1,6 +1,7 @@
 package com.graduationDesign.service;
 
 import com.graduationDesign.model.po.*;
+import com.graduationDesign.model.vo.OrderApplyVO;
 import com.graduationDesign.model.vo.OrderComplaint;
 import com.graduationDesign.model.vo.RankVO;
 
@@ -9,9 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 public interface IOrderService {
-    public OrderComplaintSimple getOrderComplaintSimple(int itemId);
-
-    public OrderComplaintAccept getOrderComplaintAccept(int itemId);
 
     public List<OrderComplaintProcess> getOrderComplaintProcess(int orderId);
 
@@ -29,11 +27,26 @@ public interface IOrderService {
 
     public List<RankVO> getAllRank(int groupId);
 
-    public List<Group> getAllOrderType();
+    public List<Item> getAllOrderType();
 
     public List<OrderComplaintAccept> getOrderComplaintAcceptFake();
 
     public int insertOrderComplaintAccept(OrderComplaintAccept orderComplaintAccept);
 
     public List<OrderComplaintAccept> getOrderComplaintAcceptAll();
+
+    public List<OrderApplyPO> selectOrderApplyAll();
+
+    public OrderApplyVO getOrderApply(int lv, int orderId);
+
+    public int approvalOrderApply(int orderId, int status, int type, String approvalValue);
+
+    public List<RankVO> showEditOrderLv(int roleId);
+
+    public List<Map> searchOrder(String eomsId, String title, int orderType, int lv);
+
+    public int insertOrderApply(OrderApplyPO orderApplyPO);
+
+    public List<OrderApplyPO> getOrderApplyFake();
+
 }

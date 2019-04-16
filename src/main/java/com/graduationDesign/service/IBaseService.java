@@ -19,5 +19,5 @@ public interface IBaseService {
 
     public String getType(int roleId);
 
-    public int upgradeOrder(int itemId);
+//    public int upgradeOrder(int itemId);
 }

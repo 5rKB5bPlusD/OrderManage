@@ -15,7 +15,7 @@
 <body style="padding: 5px">
 <h2 style="text-align: center">${notice.title}</h2>
 <h3 style="text-align: center">${notice.date}</h3>
-<div style="width: 80%;margin:0 auto">
+<div>
     ${notice.content}
 </div>
 </body>

@@ -2,6 +2,7 @@ package com.graduationDesign.service.impl;
 
 import com.google.gson.Gson;
 import com.graduationDesign.dao.IMenuDao;
+import com.graduationDesign.dao.IOrderDao;
 import com.graduationDesign.model.po.*;
 import com.graduationDesign.model.vo.MenuVO;
 import com.graduationDesign.model.vo.RoleVO;
@@ -47,7 +48,7 @@ public class BaseServiceImpl implements IBaseService {
         RoleVO role = userService.getRole(user.getRoleId());
         List<Group> menuList = getMenuGroup(typeId, role.getCommonLv());
         MenuVO menu = new MenuVO();
-        if (typeId == 1) {
+        if (typeId == 1) {//工单
             for (Group g : menuList) {
                 List<Item> items = getMenuItem(g.getId());
                 if (items.size() != 0) {
@@ -55,17 +56,45 @@ public class BaseServiceImpl implements IBaseService {
                     MenuVO finished = new MenuVO();
                     MenuVO temp = new MenuVO();
 
-                    if (g.getId() == 1) {
+                    if (g.getId() == 1) { //投诉工单
                         int lv = (int) role.getOrderLv().get("1");
-                        for (Item i : items) {
-                            if (i.getRank() == lv
-                                    || (lv == 0 && i.getRank() == 1) || (lv == 0 && i.getRank() == 4)
-                                    || (lv == 2 && i.getRank() == 5) || (lv == 3 && i.getRank() == 6)) {
-                                unfinished.add(typeId, i.getId(), i.getName(), i.getSrc());
-                            } else if (i.getRank() > lv) {
-                                finished.add(typeId, i.getId(), i.getName(), i.getSrc());
+                        String src = items.get(0).getSrc();
+                        List<OrderComplaintAccept> list = orderService.getOrderComplaintAcceptAll();
+                        for (OrderComplaintAccept o : list) {
+                            if (o.getRankLv() == lv
+                                    || (lv == 0 && o.getRankLv() == 1) || (lv == 0 && o.getRankLv() == 4)
+                                    || (lv == 2 && o.getRankLv() == 5) || (lv == 3 && o.getRankLv() == 6)) {
+                                unfinished.add(typeId, o.getId(), o.getTitle(), src);
+                            } else if (o.getRankLv() > lv) {
+                                finished.add(typeId, o.getId(), o.getTitle(), src);
                             }
                         }
+                    } else if (g.getId() == 9) {
+                        int lv = (int) role.getOrderLv().get("2");
+                        String src = items.get(0).getSrc();
+                        List<OrderApplyPO> list = orderService.selectOrderApplyAll();
+                        for (OrderApplyPO o : list) {
+                            if (o.getType() == lv && o.getStatus() == 0) {
+                                unfinished.add(typeId, o.getOrderId(), o.getTitle(), src);
+                            } else if (o.getType() == lv) {
+                                finished.add(typeId, o.getOrderId(), o.getTitle(), src);
+                            }
+                        }
+                    } else if (g.getId() == 10) {//工单管理
+                        List<Integer> commonLv = Arrays.stream(role.getCommonLv()).boxed().collect(Collectors.toList());
+                        boolean empty = true;
+                        for (Item i : items) {
+                            if (commonLv.contains(i.getRank())) {
+                                temp.add(typeId, i.getId(), i.getName(), i.getSrc());
+                                empty = false;
+                            }
+                        }
+                        if (empty) {
+                            menu.add(g.getId(), g.getName(), true, temp.getMenu());
+                        } else {
+                            menu.add(g.getId(), g.getName(), false, temp.getMenu());
+                        }
+                        return menu.getMenu();
                     }
 
                     temp.add(0, "待处理", unfinished.getMenu().size() == 0, unfinished.getMenu())
@@ -77,7 +106,7 @@ public class BaseServiceImpl implements IBaseService {
             for (Group g : menuList) {
                 List<Item> items = getMenuItem(g.getId());
                 MenuVO temp = new MenuVO();
-                List<Integer> commonLv = Arrays.stream(role.getCommonLv()).boxed().collect(Collectors.toList());
+                List<Integer> commonLv = Arrays.stream(role.getCommonLv()).boxed().collect(Collectors.toList());//数组转列表
                 if (items.size() > 0) {
                     boolean empty = true;
                     for (Item i : items) {
@@ -113,9 +142,9 @@ public class BaseServiceImpl implements IBaseService {
         return res.toString();
     }
 
-    @Override
-    public int upgradeOrder(int itemId) {
-        return menuDao.upgradeOrder(itemId);
-    }
+//    @Override
+//    public int upgradeOrder(int itemId) {
+//        return menuDao.upgradeOrder(itemId);
+//    }
 
 }

@@ -14,12 +14,29 @@
     <link rel="stylesheet" type="text/css" href="/static/plugins/jquery-easyui-1.6.7/themes/icon.css">
 </head>
 <body class="easyui-layout" data-options="border:false">
-<div data-options="region:'north',border:false" style="height:100px;background:#B3DFDA;">
-    <h1 style="text-align: center">工单管理系统接口模块</h1>
+<div id="noticeWindow" class="easyui-dialog" title="公告" style="width:600px;height:300px;padding: 10px"
+     data-options="
+                closed: true,
+                cache: false,
+                draggable: false,
+                modal: true,
+				buttons: [{
+					text:'关闭',
+					iconCls:'icon-cancel',
+					handler:function(){
+						$('#noticeWindow').dialog('close');
+					}
+				}]
+			">
+    <table id="showNotice"></table>
+</div>
+<div data-options="region:'north',border:false" style="height:100px;background: #F0F8FF;">
+    <h1 style="text-align: center;font-family: KaiTi">工单管理系统接口模块</h1>
     <span id="username" style="position: absolute;right: 20px;bottom: 10px;">
         欢迎登陆&nbsp;&nbsp;
         <span style="color: darkred; cursor: pointer">${data.username}</span>
-        <a href="javascript:void(0);" onclick="logout()">安全登出</a>
+        <a style="color: blue; cursor: pointer;margin-left: 20px" href="javascript:void(0)" onclick="showNotice()">通知</a>
+        <a href="javascript:void(0);" style="margin-left: 10px" onclick="logout()">安全登出</a>
     </span>
 </div>
 <div data-options="region:'center',border:false">
@@ -28,24 +45,28 @@
             <div title="工单填报">
                 <div class="easyui-layout" data-options="border:false" style="width:100%;height: 100%">
                     <div data-options="region:'west',split:false,border:true" style="width:20%">
-                        <ul class="easyui-tree"
-                            data-options="url:'/base/menu?type=1',method:'get',animate:false"></ul>
+                        <div style="height: 100%;overflow-y: auto">
+                            <ul id="orderMenuList" class="easyui-tree"
+                                data-options="url:'/base/menu?type=1',method:'get',animate:false"></ul>
+                        </div>
                     </div>
                     <div data-options="region:'east',split:false,border:true" style="width:80%">
-                        <div id="orderRight" class="easyui-tabs" style="width:100%;height:100%"></div>
+                        <div id="orderRight" class="easyui-tabs"
+                             style="width:100%;height:100%;background-image: url('/static/img/bg2.jpg')"></div>
                     </div>
                 </div>
             </div>
         </c:if>
         <c:if test="${fn:contains(data.rank,'userManage')}">
-            <div title="用户管理">
+            <div title="人员管理">
                 <div class="easyui-layout" data-options="border:false" style="width:100%;height: 100%">
                     <div data-options="region:'west',split:false,border:true" style="width:20%">
                         <ul class="easyui-tree"
                             data-options="url:'/base/menu?type=2',method:'get',animate:false"></ul>
                     </div>
                     <div data-options="region:'east',split:false,border:true" style="width:80%">
-                        <div id="userRight" class="easyui-tabs" style="width:100%;height:100%"></div>
+                        <div id="userRight" class="easyui-tabs"
+                             style="width:100%;height:100%;background-image: url('/static/img/bg2.jpg')"></div>
                     </div>
                 </div>
             </div>
@@ -58,7 +79,8 @@
                             data-options="url:'/base/menu?type=3',method:'get',animate:false"></ul>
                     </div>
                     <div data-options="region:'east',split:false,border:true" style="width:80%">
-                        <div id="noticeRight" class="easyui-tabs" style="width:100%;height:100%"></div>
+                        <div id="noticeRight" class="easyui-tabs"
+                             style="width:100%;height:100%;background-image: url('/static/img/bg2.jpg')"></div>
                     </div>
                 </div>
             </div>
@@ -71,7 +93,8 @@
                             data-options="url:'/base/menu?type=4',method:'get',animate:false"></ul>
                     </div>
                     <div data-options="region:'east',split:false,border:true" style="width:80%">
-                        <div id="jobRight" class="easyui-tabs" style="width:100%;height:100%"></div>
+                        <div id="jobRight" class="easyui-tabs"
+                             style="width:100%;height:100%;background-image: url('/static/img/bg2.jpg')"></div>
                     </div>
                 </div>
             </div>
